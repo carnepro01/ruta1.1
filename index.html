@@ -19,7 +19,7 @@
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 100; }
         .modal-content { background: white; width: 85%; max-width: 400px; margin: 15% auto; padding: 25px; border-radius: 15px; }
         input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        .loading { text-align: center; padding: 20px; color: var(--primary); font-weight: bold; }
+        .loading { text-align: center; padding: 20px; color: #64748b; font-size: 0.9rem; }
     </style>
 </head>
 <body>
@@ -41,7 +41,7 @@
 
     <div id="clientes" class="seccion">
         <h2>Mis Clientes</h2>
-        <div id="loading" class="loading" style="display:none;">Sincronizando con la nube...</div>
+        <div id="loading" class="loading">Sincronizando...</div>
         <table><tbody id="lista_c"></tbody></table>
     </div>
 
@@ -54,9 +54,9 @@
     <div id="modalReg" class="modal">
         <div class="modal-content">
             <h3>Nuevo Préstamo</h3>
-            <input type="text" id="nom" placeholder="Nombre (ej: Juan)">
-            <input type="number" id="mon" placeholder="Monto (ej: 100)">
-            <input type="number" id="int" placeholder="Interés (ej: 20)">
+            <input type="text" id="nom" placeholder="Nombre">
+            <input type="number" id="mon" placeholder="Monto">
+            <input type="number" id="int" placeholder="Interés %">
             <button class="btn-main" id="btnGuardar" onclick="guardar()">GUARDAR EN NUBE</button>
             <button onclick="cerrarModal()" style="width:100%; background:none; border:none; color:red; margin-top:10px;">Cerrar</button>
         </div>
@@ -77,47 +77,69 @@
         async function guardar() {
             let n = document.getElementById('nom').value;
             let m = parseFloat(document.getElementById('mon').value);
-            let i = parseFloat(document.getElementById('int').value);
-            if(!n || isNaN(m)) return alert("Revisa los datos");
+            let i = parseFloat(document.getElementById('int').value) || 0;
+            if(!n || isNaN(m)) return alert("Nombre y Monto son obligatorios");
             
-            document.getElementById('btnGuardar').innerText = "Enviando...";
+            let btn = document.getElementById('btnGuardar');
+            btn.innerText = "Enviando...";
+            btn.disabled = true;
+
             let total = m + (m * (i/100));
-            
-            // Los nombres aquí DEBEN ser iguales a los del Excel (minúsculas)
             let nuevo = { id: Date.now().toString(), nombre: n, saldo: total.toString(), total: total.toString(), pagos: "[]" };
 
             try {
-                await fetch(API_URL, {
+                const res = await fetch(API_URL, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify([nuevo]) // Sheetsu prefiere recibir un Array []
+                    headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+                    body: JSON.stringify([nuevo])
                 });
-                alert("Guardado correctamente");
-                cerrarModal();
-                document.getElementById('nom').value=''; document.getElementById('mon').value='';
-                navegar('clientes', document.querySelectorAll('.nav-item')[2]);
-            } catch (e) { alert("Error al conectar"); }
-            document.getElementById('btnGuardar').innerText = "GUARDAR EN NUBE";
+                if(res.ok) {
+                    alert("¡Guardado!");
+                    cerrarModal();
+                    document.getElementById('nom').value=''; document.getElementById('mon').value='';
+                    navegar('clientes', document.querySelectorAll('.nav-item')[2]);
+                } else {
+                    alert("Error del servidor: " + res.status);
+                }
+            } catch (e) { alert("Error de conexión a la nube"); }
+            btn.innerText = "GUARDAR EN NUBE";
+            btn.disabled = false;
         }
 
         async function cargarDatos() {
-            document.getElementById('loading').style.display = 'block';
+            const loader = document.getElementById('loading');
+            loader.style.display = 'block';
+            loader.innerText = "Buscando datos...";
+
             try {
-                let res = await fetch(API_URL);
-                let datos = await res.json();
-                dibujar(datos);
-            } catch (e) { console.log(e); }
-            document.getElementById('loading').style.display = 'none';
+                const res = await fetch(API_URL, { method: 'GET', headers: { 'Accept': 'application/json' } });
+                const datos = await res.json();
+                
+                if (Array.isArray(datos)) {
+                    dibujar(datos);
+                    loader.style.display = 'none';
+                } else {
+                    loader.innerText = "No hay datos en el Excel aún.";
+                }
+            } catch (e) { 
+                loader.innerText = "Error al cargar. Revisa tu URL de Sheetsu.";
+                console.error(e);
+            }
         }
 
         function dibujar(datos) {
             let lista = document.getElementById('lista_c'), enCalle = 0;
             lista.innerHTML = "";
+            if(datos.length === 0) {
+                document.getElementById('loading').innerText = "Lista vacía.";
+                document.getElementById('loading').style.display = 'block';
+                return;
+            }
             datos.forEach(d => {
                 let s = parseFloat(d.saldo) || 0;
                 enCalle += s;
                 lista.innerHTML += `<tr>
-                    <td><b>${d.nombre || 'Sin nombre'}</b><br><small>Saldo: $${s.toFixed(2)}</small></td>
+                    <td><b>${d.nombre || 'Desconocido'}</b><br><small>Saldo: $${s.toFixed(2)}</small></td>
                     <td style="text-align:right">
                         ${s > 0 ? `<button onclick="cobrar('${d.id}', ${s})" style="background:var(--success); color:white; border:none; padding:10px 15px; border-radius:8px;">$</button>` : '✅'}
                     </td>
@@ -132,10 +154,9 @@
             let nuevoSaldo = saldoActual - parseFloat(p);
             
             try {
-                // Sheetsu usa /id/VALOR para actualizar una fila específica
                 await fetch(`${API_URL}/id/${id}`, {
                     method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
                     body: JSON.stringify({ saldo: nuevoSaldo.toString() })
                 });
                 cargarDatos();
