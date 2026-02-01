@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ruta App Cloud + Historial</title>
+    <style>
+        :root { --primary: #2563eb; --success: #16a34a; --bg: #f8fafc; --text: #1e293b; --danger: #ef4444; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 0; color: var(--text); padding-bottom: 80px; }
+        
+        .seccion { display: none; padding: 20px; animation: fadeIn 0.3s; }
+        .activa { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* NAVEGACIÓN INFERIOR */
+        .nav-bar { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 15px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); border-top: 1px solid #e2e8f0; z-index: 10; }
+        .nav-item { cursor: pointer; text-align: center; color: #64748b; font-size: 0.7rem; font-weight: bold; text-transform: uppercase; }
+        .nav-item.active { color: var(--primary); }
+
+        .card { background: white; padding: 20px; border-radius: 15px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .btn-main { background: var(--primary); color: white; border: none; width: 100%; padding: 18px; border-radius: 12px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; }
+        td { padding: 15px; border-bottom: 1px solid #f1f5f9; }
+        
+        /* MODALES */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 100; }
+        .modal-content { background: white; width: 85%; max-width: 400px; margin: 15% auto; padding: 25px; border-radius: 15px; position: relative; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        
+        .nombre-cli { color: var(--primary); font-weight: bold; cursor: pointer; text-decoration: underline; font-size: 1.1rem; }
+        .item-pago { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed #ddd; font-size: 0.85rem; }
+        .cerrar { float: right; color: var(--danger); font-weight: bold; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div id="inicio" class="seccion activa">
+        <h2 style="text-align:center">Nueva Operación</h2>
+        <div class="card" style="text-align: center; border-top: 4px solid var(--primary);">
+            <p>Registra un nuevo crédito en tu ruta.</p>
+        </div>
+        <button class="btn-main" onclick="abrirModal('modalReg')">+ REGISTRAR PRÉSTAMO</button>
+    </div>
+
+    <div id="resumen" class="seccion">
+        <h2>Contabilidad</h2>
+        <div class="card"><span>CAPITAL EN CALLE</span><b id="c_calle">$0.00</b></div>
+        <div class="card"><span>COBRADO HOY</span><b id="c_hoy" style="color: var(--success);">$0.00</b></div>
+    </div>
+
+    <div id="clientes" class="seccion">
+        <h2>Lista de Ruta</h2>
+        <table><tbody id="lista_c"></tbody></table>
+    </div>
+
+    <div id="nube" class="seccion">
+        <h2>Soporte y Respaldo</h2>
+        <div class="card">
+            <button class="btn-main" style="background:#6366f1" onclick="exportarDatos()">📥 DESCARGAR RESPALDO</button>
+            <hr style="margin:20px 0; opacity: 0.2;">
+            <p style="font-size: 0.8rem; color: #64748b;">Subir archivo de respaldo:</p>
+            <input type="file" id="fileInput" onchange="importarDatos(event)">
+        </div>
+        <button onclick="borrarTodo()" style="color: var(--danger); background: none; border: none; width: 100%; cursor: pointer; margin-top: 20px;">⚠️ Vaciar toda la base de datos</button>
+    </div>
+
+    <div class="nav-bar">
+        <div class="nav-item active" onclick="navegar('inicio', this)">🏠<br>Inicio</div>
+        <div class="nav-item" onclick="navegar('resumen', this)">📊<br>Caja</div>
+        <div class="nav-item" onclick="navegar('clientes', this)">👥<br>Ruta</div>
+        <div class="nav-item" onclick="navegar('nube', this)">☁️<br>Nube</div>
+    </div>
+
+    <div id="modalReg" class="modal">
+        <div class="modal-content">
+            <h3>Nuevo Préstamo</h3>
+            <input type="text" id="nom" placeholder="Nombre del cliente">
+            <input type="number" id="mon" placeholder="Monto prestado">
+            <input type="number" id="int" placeholder="% Interés">
+            <button class="btn-main" onclick="guardar()">GUARDAR</button>
+            <button onclick="cerrarModal('modalReg')" style="width:100%; background:none; border:none; color:red; margin-top:10px;">Cerrar</button>
+        </div>
+    </div>
+
+    <div id="modalHis" class="modal">
+        <div class="modal-content">
+            <span class="cerrar" onclick="cerrarModal('modalHis')">[X] CERRAR</span>
+            <h3 id="his_nombre">Historial</h3>
+            <div id="his_lista" style="max-height: 250px; overflow-y: auto; margin: 15px 0;"></div>
+            <div id="his_saldo" style="font-weight: bold; border-top: 2px solid #eee; padding-top: 10px; color: var(--primary);"></div>
+        </div>
+    </div>
+
+    <script>
+        let datos = JSON.parse(localStorage.getItem('ruta_final_v5')) || [];
+
+        function navegar(id, el) {
+            document.querySelectorAll('.seccion').forEach(s => s.classList.remove('activa'));
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            document.getElementById(id).classList.add('activa');
+            el.classList.add('active');
+            dibujar();
+        }
+
+        function abrirModal(id) { document.getElementById(id).style.display = 'block'; }
+        function cerrarModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        function guardar() {
+            let n = document.getElementById('nom').value, m = parseFloat(document.getElementById('mon').value), i = parseFloat(document.getElementById('int').value);
+            if(n && m) {
+                let total = m + (m * (i/100));
+                datos.push({ id: Date.now(), nombre: n, saldo: total, total: total, pagos: [] });
+                actualizar();
+                cerrarModal('modalReg');
+                navegar('clientes', document.querySelectorAll('.nav-item')[2]);
+                document.getElementById('nom').value=''; document.getElementById('mon').value='';
+            }
+        }
+
+        function cobrar(id) {
+            let p = prompt("Monto del abono:");
+            if(p && !isNaN(p)) {
+                datos = datos.map(d => {
+                    if(d.id === id) {
+                        d.saldo -= parseFloat(p);
+                        d.pagos.push({ f: new Date().toLocaleString(), fs: new Date().toLocaleDateString(), a: parseFloat(p) });
+                    }
+                    return d;
+                });
+                actualizar();
+            }
+        }
+
+        function verHistorial(id) {
+            let d = datos.find(x => x.id === id);
+            document.getElementById('his_nombre').innerText = d.nombre;
+            let listaHis = document.getElementById('his_lista');
+            listaHis.innerHTML = d.pagos.length === 0 ? "<p>Sin abonos aún.</p>" : 
+                d.pagos.map(p => `<div class="item-pago"><span>${p.f}</span><b style="color:var(--success)">+$${p.a.toFixed(2)}</b></div>`).join('');
+            document.getElementById('his_saldo').innerText = "SALDO RESTANTE: $" + d.saldo.toFixed(2);
+            abrirModal('modalHis');
+        }
+
+        function dibujar() {
+            let lista = document.getElementById('lista_c'), html = "", enCalle = 0, hoy = 0;
+            let f_actual = new Date().toLocaleDateString();
+
+            datos.forEach(d => {
+                if(d.saldo > 0) enCalle += d.saldo;
+                d.pagos.forEach(p => { if(p.fs === f_actual) hoy += p.a; });
+
+                html += `<tr>
+                    <td><div class="nombre-cli" onclick="verHistorial(${d.id})">${d.nombre}</div><small>Debiendo: $${d.saldo.toFixed(2)}</small></td>
+                    <td style="text-align:right">
+                        ${d.saldo > 0 ? `<button onclick="cobrar(${d.id})" style="background:var(--success); color:white; border:none; padding:12px; border-radius:10px; font-weight:bold">$</button>` : '✅'}
+                    </td>
+                </tr>`;
+            });
+            lista.innerHTML = html || "<tr><td style='text-align:center'>No hay clientes registrados</td></tr>";
+            document.getElementById('c_calle').innerText = "$" + enCalle.toFixed(2);
+            document.getElementById('c_hoy').innerText = "$" + hoy.toFixed(2);
+        }
+
+        function actualizar() {
+            localStorage.setItem('ruta_final_v5', JSON.stringify(datos));
+            dibujar();
+        }
+
+        function exportarDatos() {
+            const blob = new Blob([JSON.stringify(datos)], {type: "application/json"});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = "respaldo_ruta_" + new Date().toLocaleDateString() + ".json";
+            a.click();
+        }
+
+        function importarDatos(e) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                datos = JSON.parse(event.target.result);
+                actualizar();
+                alert("Base de datos actualizada.");
+            };
+            reader.readAsText(e.target.files[0]);
+        }
+
+        function borrarTodo() {
+            if(confirm("¿Eliminar todos los datos? Esta acción es irreversible.")) {
+                datos = []; actualizar();
+            }
+        }
+
+        dibujar();
+    </script>
+</body>
+</html>
