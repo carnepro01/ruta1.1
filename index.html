@@ -3,37 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ruta Cloud - Gestión</title>
+    <title>Ruta Pro - Control Semanal</title>
     <style>
-        :root { --primary: #2563eb; --success: #16a34a; --bg: #f8fafc; --text: #1e293b; --danger: #ef4444; --warning: #f59e0b; }
+        :root { --primary: #2563eb; --success: #16a34a; --bg: #f8fafc; --text: #1e293b; --danger: #ef4444; --warning: #f59e0b; --muted: #64748b; }
         body { font-family: sans-serif; background: var(--bg); margin: 0; padding-bottom: 80px; color: var(--text); }
         .seccion { display: none; padding: 20px; }
         .activa { display: block; }
         .nav-bar { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #ddd; z-index: 100; }
         .nav-item { cursor: pointer; font-size: 0.8rem; font-weight: bold; color: #666; text-align: center; }
         .nav-item.active { color: var(--primary); }
-        .card { background: white; padding: 15px; border-radius: 10px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        
+        .card { background: white; padding: 15px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .card b { display: block; font-size: 1.4rem; margin-top: 5px; }
+        .card span { font-size: 0.7rem; font-weight: bold; color: var(--muted); text-transform: uppercase; }
+        
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .linea-semanal { border-left: 4px solid var(--primary); }
+        
         .btn-main { background: var(--primary); color: white; border: none; width: 100%; padding: 15px; border-radius: 10px; font-weight: bold; cursor: pointer; }
         .btn-opt { width: 100%; padding: 15px; margin-bottom: 10px; border-radius: 10px; border: none; font-weight: bold; color: white; cursor: pointer; }
+        
         table { width: 100%; background: white; border-radius: 10px; border-collapse: collapse; }
         td { padding: 12px; border-bottom: 1px solid #eee; }
-        
-        /* Estilos de Pagado */
         .pagado { background: #f0fdf4; }
-        .badge-pagado { color: var(--success); font-size: 0.6rem; border: 1px solid var(--success); padding: 2px 4px; border-radius: 4px; margin-left: 5px; font-weight: bold; vertical-align: middle; }
+        .badge-pagado { color: var(--success); font-size: 0.6rem; border: 1px solid var(--success); padding: 2px 4px; border-radius: 4px; margin-left: 5px; font-weight: bold; }
         
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 200; }
-        .modal-content { background: white; margin: 15% auto; padding: 20px; width: 85%; max-width: 400px; border-radius: 15px; box-sizing: border-box; }
+        .modal-content { background: white; margin: 15% auto; padding: 20px; width: 85%; max-width: 400px; border-radius: 15px; }
         input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
     </style>
 </head>
 <body>
 
     <script>
-        const API_URL = "https://sheetdb.io/api/v1/851m8ra8nv7bu"; 
+        const API_URL = "TU_URL_DE_SHEETSU_AQUI"; 
         let datosGlobales = [];
         let clienteSel = null;
+        
         const fechaHoy = () => new Date().toLocaleDateString();
+        
+        // Función para verificar si una fecha está dentro de los últimos 7 días
+        const esDeEstaSemana = (fechaStr) => {
+            const [d, m, y] = fechaStr.split('/');
+            const fecha = new Date(y, m - 1, d);
+            const hoy = new Date();
+            const sieteDiasAgo = new Date();
+            sieteDiasAgo.setDate(hoy.getDate() - 7);
+            return fecha >= sieteDiasAgo && fecha <= hoy;
+        };
     </script>
 
     <div class="nav-bar">
@@ -43,15 +60,35 @@
     </div>
 
     <div id="inicio" class="seccion activa">
-        <h2>Panel de Control</h2>
+        <h2 style="text-align:center">Ruta Cloud</h2>
         <button class="btn-main" onclick="abrirModal('modalReg')">+ NUEVO PRÉSTAMO</button>
     </div>
 
     <div id="resumen" class="seccion">
-        <h2>Balance</h2>
-        <div class="card">Cobrado hoy: <b id="c_hoy">$0.00</b></div>
-        <div class="card">Prestado hoy: <b id="p_hoy">$0.00</b></div>
-        <div class="card">Total en calle: <b id="t_calle">$0.00</b></div>
+        <h2 style="margin-bottom:5px;">Resumen de Caja</h2>
+        <p style="font-size:0.8rem; color:var(--muted); margin-bottom:15px;">Control de ingresos y egresos</p>
+
+        <span>Balance de Hoy</span>
+        <div class="grid" style="margin-top:5px; margin-bottom:20px;">
+            <div class="card" style="border-left: 4px solid var(--success);"><span>Cobrado</span><b id="c_hoy">$0</b></div>
+            <div class="card" style="border-left: 4px solid var(--danger);"><span>Prestado</span><b id="p_hoy">$0</b></div>
+        </div>
+
+        <span>Últimos 7 Días</span>
+        <div class="card linea-semanal">
+            <div class="grid">
+                <div><span>Total Cobros</span><b id="c_semana" style="color:var(--success); font-size:1.1rem;">$0</b></div>
+                <div><span>Total Préstamos</span><b id="p_semana" style="color:var(--danger); font-size:1.1rem;">$0</b></div>
+            </div>
+            <hr style="border:0; border-top:1px solid #eee; margin:10px 0;">
+            <span>Utilidad Neta (Flujo)</span>
+            <b id="utilidad_semana" style="font-size:1.2rem;">$0</b>
+        </div>
+
+        <div class="card">
+            <span>Capital Total en Calle</span>
+            <b id="t_calle" style="color:var(--primary);">$0</b>
+        </div>
     </div>
 
     <div id="clientes" class="seccion">
@@ -64,7 +101,7 @@
     <div id="modalReg" class="modal"><div class="modal-content">
         <h3>Nuevo Préstamo</h3>
         <input type="text" id="nom" placeholder="Nombre">
-        <input type="number" id="mon" placeholder="Monto">
+        <input type="number" id="mon" placeholder="Monto a entregar">
         <input type="number" id="int" placeholder="% Interés">
         <button class="btn-main" onclick="guardar()">GUARDAR</button>
         <button onclick="cerrarModal('modalReg')" style="width:100%; background:none; border:none; color:red; margin-top:10px;">Cerrar</button>
@@ -108,17 +145,44 @@
             document.getElementById('loading').style.display = 'none';
         }
 
+        function actualizarBalance() {
+            let c_hoy=0, p_hoy=0, t_calle=0;
+            let c_semana=0, p_semana=0;
+
+            datosGlobales.forEach(d => {
+                let saldo = parseFloat(d.saldo) || 0;
+                let totalConInt = parseFloat(d.total) || 0;
+                t_calle += saldo;
+
+                // Préstamos Hoy vs Semana
+                if(d.fecha_prestamo === fechaHoy()) p_hoy += totalConInt;
+                if(esDeEstaSemana(d.fecha_prestamo)) p_semana += totalConInt;
+
+                // Cobros Hoy vs Semana
+                let pgs = JSON.parse(d.pagos || "[]");
+                pgs.forEach(pg => {
+                    if(pg.fecha === fechaHoy()) c_hoy += pg.monto;
+                    if(esDeEstaSemana(pg.fecha)) c_semana += pg.monto;
+                });
+            });
+
+            document.getElementById('c_hoy').innerText = "$" + c_hoy.toFixed(2);
+            document.getElementById('p_hoy').innerText = "$" + p_hoy.toFixed(2);
+            document.getElementById('t_calle').innerText = "$" + t_calle.toFixed(2);
+            
+            document.getElementById('c_semana').innerText = "$" + c_semana.toFixed(2);
+            document.getElementById('p_semana').innerText = "$" + p_semana.toFixed(2);
+            document.getElementById('utilidad_semana').innerText = "$" + (c_semana - p_semana).toFixed(2);
+        }
+
         function dibujar() {
             const lista = document.getElementById('lista_c');
             lista.innerHTML = "";
-            
-            // Separar pagados de pendientes para ordenar
             let pends = [], pags = [];
             datosGlobales.forEach(d => {
                 let pagadoHoy = JSON.parse(d.pagos || "[]").some(p => p.fecha === fechaHoy());
                 if(pagadoHoy) pags.push(d); else pends.push(d);
             });
-
             [...pends, ...pags].forEach(d => {
                 let s = parseFloat(d.saldo) || 0;
                 let pagadoHoy = JSON.parse(d.pagos || "[]").some(p => p.fecha === fechaHoy());
@@ -133,6 +197,7 @@
             });
         }
 
+        // Lógica de menús y API idéntica a la anterior para mantener estabilidad
         function abrirMenu(id) {
             clienteSel = datosGlobales.find(x => x.id === id);
             document.getElementById('menu_nombre').innerText = clienteSel.nombre;
@@ -164,7 +229,7 @@
         }
 
         async function borrarPago(pid) {
-            if(!confirm("¿Borrar este pago del historial?")) return;
+            if(!confirm("¿Borrar este pago?")) return;
             let pgs = JSON.parse(clienteSel.pagos || "[]");
             let p = pgs.find(x => x.pid == pid);
             let nuevosPgs = pgs.filter(x => x.pid != pid);
@@ -176,18 +241,6 @@
             });
             cerrarModal('modalHis');
             cargarDatos();
-        }
-
-        function actualizarBalance() {
-            let c=0, p=0, t=0;
-            datosGlobales.forEach(d => {
-                t += parseFloat(d.saldo) || 0;
-                if(d.fecha_prestamo === fechaHoy()) p += parseFloat(d.total) || 0;
-                JSON.parse(d.pagos || "[]").forEach(pg => { if(pg.fecha === fechaHoy()) c += pg.monto; });
-            });
-            document.getElementById('c_hoy').innerText = "$" + c.toFixed(2);
-            document.getElementById('p_hoy').innerText = "$" + p.toFixed(2);
-            document.getElementById('t_calle').innerText = "$" + t.toFixed(2);
         }
 
         async function guardar() {
