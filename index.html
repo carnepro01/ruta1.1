@@ -3,32 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ruta Pro - Balance y Caja</title>
+    <title>Ruta Pro - Balance Fijo</title>
     <style>
-        :root { --primary: #2563eb; --success: #16a34a; --bg: #f8fafc; --text: #1e293b; --danger: #ef4444; --warning: #f59e0b; --muted: #64748b; }
+        :root { --primary: #2563eb; --success: #16a34a; --bg: #f8fafc; --text: #1e293b; --danger: #ef4444; --warning: #f59e0b; --muted: #94a3b8; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding-bottom: 80px; color: var(--text); }
         .seccion { display: none; padding: 20px; animation: fadeIn 0.3s; }
         .activa { display: block; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         
-        /* Navegación */
         .nav-bar { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 12px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); border-top: 1px solid #e2e8f0; z-index: 100; }
         .nav-item { cursor: pointer; text-align: center; color: #64748b; font-size: 0.7rem; font-weight: bold; }
         .nav-item.active { color: var(--primary); }
 
-        /* Tarjetas de Balance */
         .grid-balance { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
         .card { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-left: 4px solid var(--primary); }
         .card.verde { border-left-color: var(--success); }
         .card.roja { border-left-color: var(--danger); }
-        .card.naranja { border-left-color: var(--warning); }
         .card span { font-size: 0.65rem; color: var(--muted); font-weight: bold; text-transform: uppercase; }
         .card b { display: block; font-size: 1.1rem; margin-top: 5px; }
 
-        .btn-main { background: var(--primary); color: white; border: none; width: 100%; padding: 16px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 1rem; }
-        .search-box { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #e2e8f0; margin-bottom: 15px; box-sizing: border-box; }
+        .btn-main { background: var(--primary); color: white; border: none; width: 100%; padding: 16px; border-radius: 12px; font-weight: bold; cursor: pointer; }
+        .search-box { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #e2e8f0; margin-bottom: 15px; box-sizing: border-box; width: 100%; }
         
-        table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; }
         td { padding: 15px; border-bottom: 1px solid #f1f5f9; }
         
         .cliente-pagado { background-color: #f8fafc; opacity: 0.7; }
@@ -36,55 +33,50 @@
 
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 200; }
         .modal-content { background: white; width: 85%; max-width: 400px; margin: 10% auto; padding: 20px; border-radius: 15px; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
     </style>
 </head>
 <body>
 
     <script>
-        const API_URL = "https://sheetdb.io/api/v1/851m8ra8nv7bu"; 
+        const API_URL = "TU_URL_DE_SHEETSU_AQUI"; 
         let datosGlobales = [];
         const fechaHoy = () => new Date().toLocaleDateString();
     </script>
 
     <div id="inicio" class="seccion activa">
-        <h2 style="text-align:center">Mi Ruta Cloud</h2>
-        <div class="card" style="border-left:none; text-align:center; margin-top:40px;">
-            <p style="color:var(--muted)">Bienvenido. Todos los cambios se sincronizan automáticamente con tu dominio y Google Sheets.</p>
+        <h2 style="text-align:center">Ruta Cloud</h2>
+        <div class="card" style="border-left:none; text-align:center; margin: 40px 0;">
+            <p style="color:var(--muted)">Sincronización en tiempo real activa.</p>
         </div>
         <button class="btn-main" onclick="abrirModal('modalReg')">+ NUEVO PRÉSTAMO</button>
     </div>
 
     <div id="resumen" class="seccion">
-        <h2>Resumen Financiero</h2>
-        
-        <p style="font-weight:bold; color:var(--muted); font-size:0.8rem;">MOVIMIENTOS DE HOY</p>
+        <h2>Balance Financiero</h2>
+        <p style="font-weight:bold; color:var(--muted); font-size:0.8rem;">HOY</p>
         <div class="grid-balance">
-            <div class="card verde"><span>Cobrado hoy</span><b id="c_hoy">$0.00</b></div>
-            <div class="card roja"><span>Prestado hoy</span><b id="p_hoy">$0.00</b></div>
+            <div class="card verde"><span>Cobrado</span><b id="c_hoy">$0.00</b></div>
+            <div class="card roja"><span>Prestado</span><b id="p_hoy">$0.00</b></div>
         </div>
-
-        <p style="font-weight:bold; color:var(--muted); font-size:0.8rem; margin-top:20px;">BALANCE GLOBAL (CALLE)</p>
+        <p style="font-weight:bold; color:var(--muted); font-size:0.8rem; margin-top:20px;">GLOBAL EN CALLE</p>
         <div class="card" style="margin-bottom:10px; border-left-width:8px;">
             <span>Total por cobrar</span>
             <b id="total_calle" style="font-size:1.8rem;">$0.00</b>
         </div>
-        <div class="grid-balance">
-            <div class="card naranja"><span>Capital Puro</span><b id="capital_calle">$0.00</b></div>
-            <div class="card"><span>Ganancia Proy.</span><b id="ganancia_calle">$0.00</b></div>
-        </div>
     </div>
 
     <div id="clientes" class="seccion">
-        <h2>Lista de Cobro</h2>
+        <h2>Mi Lista</h2>
         <input type="text" id="buscador" class="search-box" placeholder="🔍 Buscar cliente..." onkeyup="filtrarClientes()">
-        <div id="loading" style="text-align:center; padding:10px; display:none; color:var(--primary);">Actualizando...</div>
+        <div id="loading" style="text-align:center; padding:10px; display:none; color:var(--primary);">Sincronizando...</div>
         <table><tbody id="lista_c"></tbody></table>
     </div>
 
     <div class="nav-bar">
         <div class="nav-item active" onclick="navegar('inicio', this)">🏠<br>Inicio</div>
-        <div class="nav-item" onclick="navegar('resumen', this)">📊<br>Balance</div>
-        <div class="nav-item" onclick="navegar('clientes', this)">👥<br>Ruta</div>
+        <div class="nav-item" onclick="navegar('resumen', this)">📊<br>Caja</div>
+        <div class="nav-item" onclick="navegar('clientes', this)">👥<br>Lista</div>
     </div>
 
     <div id="modalReg" class="modal"><div class="modal-content">
@@ -92,7 +84,7 @@
         <input type="text" id="nom" placeholder="Nombre">
         <input type="number" id="mon" placeholder="Monto">
         <input type="number" id="int" placeholder="% Interés">
-        <button class="btn-main" onclick="guardar()">GUARDAR</button>
+        <button class="btn-main" style="width:100%" onclick="guardar()">GUARDAR</button>
         <button onclick="cerrarModal('modalReg')" style="width:100%; background:none; border:none; color:red; margin-top:10px;">Cerrar</button>
     </div></div>
 
@@ -112,66 +104,49 @@
             document.getElementById('loading').style.display = 'block';
             try {
                 const res = await fetch(API_URL);
-                datosGlobales = await res.json();
+                const data = await res.json();
+                datosGlobales = Array.isArray(data) ? data : [];
                 dibujar();
-                calcularBalance();
-            } catch (e) { console.error(e); }
+                actualizarCaja();
+            } catch (e) { console.error("Error cargando:", e); }
             document.getElementById('loading').style.display = 'none';
         }
 
-        function calcularBalance() {
-            let c_hoy = 0, p_hoy = 0, t_calle = 0, cap_calle = 0;
-
+        function actualizarCaja() {
+            let c_hoy = 0, p_hoy = 0, t_calle = 0;
             datosGlobales.forEach(d => {
-                let saldoActual = parseFloat(d.saldo) || 0;
-                let totalConInteres = parseFloat(d.total) || 0;
-                let pagosArr = JSON.parse(d.pagos || "[]");
-
-                // Cálculo de hoy
-                if(d.fecha_prestamo === fechaHoy()) p_hoy += totalConInteres;
-                pagosArr.forEach(p => { if(p.fecha === fechaHoy()) c_hoy += p.monto; });
-
-                // Cálculo global en calle
-                t_calle += saldoActual;
-                
-                // Capital estimado: Proporción del saldo que no es interés
-                // Si prestó 100 y total es 120, el capital es saldo / 1.2
-                let factorInteres = totalConInteres / (totalConInteres / (1 + ( (totalConInteres - (totalConInteres / (1 + 0.2))) / totalConInteres ))); // Simplificado:
-                // Usaremos una lógica más directa:
-                let montoOriginal = totalConInteres > 0 ? (totalConInteres / (1 + ( (totalConInteres - (parseFloat(d.monto_original) || totalConInteres/1.2)) / (parseFloat(d.monto_original) || totalConInteres/1.2) ))) : 0;
-                
-                // Para no complicar el Excel, asumimos un promedio si no guardamos el monto base:
-                cap_calle += (saldoActual / (totalConInteres / (totalConInteres / 1.2 || 1))); 
+                let saldo = parseFloat(d.saldo) || 0;
+                t_calle += saldo;
+                if(d.fecha_prestamo === fechaHoy()) p_hoy += parseFloat(d.total) || 0;
+                let pagos = JSON.parse(d.pagos || "[]");
+                pagos.forEach(p => { if(p.fecha === fechaHoy()) c_hoy += p.monto; });
             });
-
             document.getElementById('c_hoy').innerText = "$" + c_hoy.toFixed(2);
             document.getElementById('p_hoy').innerText = "$" + p_hoy.toFixed(2);
             document.getElementById('total_calle').innerText = "$" + t_calle.toFixed(2);
-            document.getElementById('capital_calle').innerText = "$" + (t_calle * 0.8).toFixed(2); // Estimación del 80% capital
-            document.getElementById('ganancia_calle').innerText = "$" + (t_calle * 0.2).toFixed(2); // Estimación del 20% ganancia
         }
 
         function dibujar() {
             const lista = document.getElementById('lista_c');
             lista.innerHTML = "";
-            let pendientes = [], pagados = [];
+            let pends = [], pags = [];
 
             datosGlobales.forEach(d => {
-                let hizoPagoHoy = JSON.parse(d.pagos || "[]").some(p => p.fecha === fechaHoy());
-                if (hizoPagoHoy) pagados.push(d); else pendientes.push(d);
+                let pagoHoy = JSON.parse(d.pagos || "[]").some(p => p.fecha === fechaHoy());
+                if (pagoHoy) pags.push(d); else pends.push(d);
             });
 
-            [...pendientes, ...pagados].forEach(d => {
+            [...pends, ...pags].forEach(d => {
                 let s = parseFloat(d.saldo) || 0;
-                let hizoPagoHoy = JSON.parse(d.pagos || "[]").some(p => p.fecha === fechaHoy());
+                let hizoPago = JSON.parse(d.pagos || "[]").some(p => p.fecha === fechaHoy());
                 lista.innerHTML += `
-                    <tr class="${hizoPagoHoy ? 'cliente-pagado' : ''}" data-nombre="${d.nombre.toLowerCase()}">
+                    <tr class="${hizoPago ? 'cliente-pagado' : ''}" data-nombre="${d.nombre.toLowerCase()}">
                         <td>
-                            <b>${d.nombre}</b> ${hizoPagoHoy ? '<span class="badge-pagado">Pagado</span>' : ''}
-                            <br><small style="color:var(--muted)">Saldo: $${s.toFixed(2)}</small>
+                            <b>${d.nombre}</b> ${hizoPago ? '<span class="badge-pagado">PAGADO</span>' : ''}
+                            <br><small style="color:var(--muted)">Debe: $${s.toFixed(2)}</small>
                         </td>
                         <td style="text-align:right">
-                            <button onclick="cobrar('${d.id}')" style="background:${hizoPagoHoy ? var(--muted) : 'var(--success)'}; color:white; border:none; padding:10px 15px; border-radius:8px;">$</button>
+                            <button onclick="cobrar('${d.id}')" style="background:${hizoPago ? '#94a3b8' : '#16a34a'}; color:white; border:none; padding:10px 15px; border-radius:8px;">$</button>
                         </td>
                     </tr>`;
             });
@@ -186,10 +161,13 @@
 
         async function guardar() {
             let n = document.getElementById('nom').value, m = parseFloat(document.getElementById('mon').value), i = parseFloat(document.getElementById('int').value) || 0;
+            if(!n || isNaN(m)) return alert("Datos incompletos");
             let total = m + (m * (i/100));
             let nuevo = { id: Date.now().toString(), nombre: n, saldo: total.toString(), total: total.toString(), pagos: "[]", fecha_prestamo: fechaHoy() };
             await fetch(API_URL, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify([nuevo]) });
-            cerrarModal('modalReg'); cargarDatos();
+            cerrarModal('modalReg');
+            document.getElementById('nom').value = ""; document.getElementById('mon').value = "";
+            cargarDatos();
         }
 
         async function cobrar(id) {
