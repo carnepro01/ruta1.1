@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ruta Cloud - Menú Cliente</title>
+    <title>Ruta Cloud - Gestión</title>
     <style>
         :root { --primary: #2563eb; --success: #16a34a; --bg: #f8fafc; --text: #1e293b; --danger: #ef4444; --warning: #f59e0b; }
         body { font-family: sans-serif; background: var(--bg); margin: 0; padding-bottom: 80px; color: var(--text); }
@@ -68,7 +68,7 @@
 
     <div id="modalMenu" class="modal"><div class="modal-content">
         <h3 id="menu_nombre" style="text-align:center; color:var(--primary);">Cliente</h3>
-        <button class="btn-opt" style="background:var(--primary);" onclick="verHis()">Historial / Borrar Pagos</button>
+        <button class="btn-opt" style="background:var(--primary);" onclick="verHis()">historial</button>
         <button class="btn-opt" style="background:var(--warning);" onclick="prepararRenovar()">Renovar Préstamo</button>
         <button class="btn-opt" style="background:var(--danger);" onclick="eliminarCli()">Eliminar Cliente</button>
         <button onclick="cerrarModal('modalMenu')" style="width:100%; background:none; border:none; color:gray; margin-top:5px;">Volver</button>
@@ -100,7 +100,7 @@
                 datosGlobales = Array.isArray(json) ? json : [];
                 dibujar();
                 actualizarBalance();
-            } catch (e) { alert("Error al cargar datos"); }
+            } catch (e) { console.log(e); }
             document.getElementById('loading').style.display = 'none';
         }
 
@@ -140,7 +140,7 @@
             let pgs = JSON.parse(clienteSel.pagos || "[]");
             let h = pgs.map(p => `<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #eee;">
                 <span>${p.fecha}: <b>$${p.monto}</b></span>
-                <button onclick="borrarPago('${p.pid}')" style="color:red; background:none; border:none;">X</button>
+                <button onclick="borrarPago('${p.pid}')" style="color:red; background:none; border:none; font-weight:bold;">ELIMINAR</button>
             </div>`).join('');
             document.getElementById('his_lista').innerHTML = h || "Sin pagos";
             cerrarModal('modalMenu');
@@ -148,7 +148,7 @@
         }
 
         async function borrarPago(pid) {
-            if(!confirm("¿Borrar pago?")) return;
+            if(!confirm("¿Borrar este pago del historial?")) return;
             let pgs = JSON.parse(clienteSel.pagos || "[]");
             let p = pgs.find(x => x.pid == pid);
             let nuevosPgs = pgs.filter(x => x.pid != pid);
@@ -183,6 +183,7 @@
             await fetch(API_URL, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify([nuevo]) });
             cerrarModal('modalReg');
             clienteSel = null;
+            document.getElementById('nom').value = ""; document.getElementById('mon').value = "";
             cargarDatos();
         }
 
@@ -210,5 +211,3 @@
     </script>
 </body>
 </html>
-
-
