@@ -17,10 +17,14 @@
         .btn-opt { width: 100%; padding: 15px; margin-bottom: 10px; border-radius: 10px; border: none; font-weight: bold; color: white; cursor: pointer; }
         table { width: 100%; background: white; border-radius: 10px; border-collapse: collapse; }
         td { padding: 12px; border-bottom: 1px solid #eee; }
+        
+        /* Estilos de Pagado */
+        .pagado { background: #f0fdf4; }
+        .badge-pagado { color: var(--success); font-size: 0.6rem; border: 1px solid var(--success); padding: 2px 4px; border-radius: 4px; margin-left: 5px; font-weight: bold; vertical-align: middle; }
+        
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 200; }
         .modal-content { background: white; margin: 15% auto; padding: 20px; width: 85%; max-width: 400px; border-radius: 15px; box-sizing: border-box; }
         input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
-        .pagado { background: #f0fdf4; opacity: 0.8; }
     </style>
 </head>
 <body>
@@ -68,7 +72,7 @@
 
     <div id="modalMenu" class="modal"><div class="modal-content">
         <h3 id="menu_nombre" style="text-align:center; color:var(--primary);">Cliente</h3>
-        <button class="btn-opt" style="background:var(--primary);" onclick="verHis()">historial</button>
+        <button class="btn-opt" style="background:var(--primary);" onclick="verHis()">Historial</button>
         <button class="btn-opt" style="background:var(--warning);" onclick="prepararRenovar()">Renovar Préstamo</button>
         <button class="btn-opt" style="background:var(--danger);" onclick="eliminarCli()">Eliminar Cliente</button>
         <button onclick="cerrarModal('modalMenu')" style="width:100%; background:none; border:none; color:gray; margin-top:5px;">Volver</button>
@@ -107,11 +111,23 @@
         function dibujar() {
             const lista = document.getElementById('lista_c');
             lista.innerHTML = "";
+            
+            // Separar pagados de pendientes para ordenar
+            let pends = [], pags = [];
             datosGlobales.forEach(d => {
+                let pagadoHoy = JSON.parse(d.pagos || "[]").some(p => p.fecha === fechaHoy());
+                if(pagadoHoy) pags.push(d); else pends.push(d);
+            });
+
+            [...pends, ...pags].forEach(d => {
                 let s = parseFloat(d.saldo) || 0;
                 let pagadoHoy = JSON.parse(d.pagos || "[]").some(p => p.fecha === fechaHoy());
                 lista.innerHTML += `<tr class="${pagadoHoy ? 'pagado' : ''}" data-nombre="${d.nombre.toLowerCase()}">
-                    <td><b style="color:var(--primary); cursor:pointer;" onclick="abrirMenu('${d.id}')">${d.nombre}</b><br><small>Saldo: $${s.toFixed(2)}</small></td>
+                    <td>
+                        <b style="color:var(--primary); cursor:pointer;" onclick="abrirMenu('${d.id}')">${d.nombre}</b>
+                        ${pagadoHoy ? '<span class="badge-pagado">PAGADO</span>' : ''}
+                        <br><small>Saldo: $${s.toFixed(2)}</small>
+                    </td>
                     <td align="right"><button onclick="cobrar('${d.id}')" style="background:${pagadoHoy ? '#94a3b8' : '#16a34a'}; color:white; border:none; padding:12px; border-radius:8px;">$</button></td>
                 </tr>`;
             });
