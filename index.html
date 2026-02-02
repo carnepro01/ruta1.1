@@ -3,75 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ruta Pro - Balance Fijo</title>
+    <title>Ruta Cloud Pro</title>
     <style>
-        :root { --primary: #2563eb; --success: #16a34a; --bg: #f8fafc; --text: #1e293b; --danger: #ef4444; --warning: #f59e0b; --muted: #94a3b8; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding-bottom: 80px; color: var(--text); }
-        .seccion { display: none; padding: 20px; animation: fadeIn 0.3s; }
+        :root { --primary: #2563eb; --success: #16a34a; --bg: #f8fafc; --text: #1e293b; --danger: #ef4444; }
+        body { font-family: sans-serif; background: var(--bg); margin: 0; padding-bottom: 80px; color: var(--text); }
+        .seccion { display: none; padding: 20px; }
         .activa { display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        
-        .nav-bar { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 12px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); border-top: 1px solid #e2e8f0; z-index: 100; }
-        .nav-item { cursor: pointer; text-align: center; color: #64748b; font-size: 0.7rem; font-weight: bold; }
+        .nav-bar { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #ddd; }
+        .nav-item { cursor: pointer; font-size: 0.8rem; font-weight: bold; color: #666; text-align: center; }
         .nav-item.active { color: var(--primary); }
-
-        .grid-balance { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-        .card { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-left: 4px solid var(--primary); }
-        .card.verde { border-left-color: var(--success); }
-        .card.roja { border-left-color: var(--danger); }
-        .card span { font-size: 0.65rem; color: var(--muted); font-weight: bold; text-transform: uppercase; }
-        .card b { display: block; font-size: 1.1rem; margin-top: 5px; }
-
-        .btn-main { background: var(--primary); color: white; border: none; width: 100%; padding: 16px; border-radius: 12px; font-weight: bold; cursor: pointer; }
-        .search-box { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #e2e8f0; margin-bottom: 15px; box-sizing: border-box; width: 100%; }
-        
-        table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; }
-        td { padding: 15px; border-bottom: 1px solid #f1f5f9; }
-        
-        .cliente-pagado { background-color: #f8fafc; opacity: 0.7; }
-        .badge-pagado { color: var(--success); font-size: 0.6rem; border: 1px solid var(--success); padding: 2px 4px; border-radius: 4px; margin-left: 5px; }
-
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 200; }
-        .modal-content { background: white; width: 85%; max-width: 400px; margin: 10% auto; padding: 20px; border-radius: 15px; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        .card { background: white; padding: 15px; border-radius: 10px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .btn-main { background: var(--primary); color: white; border: none; width: 100%; padding: 15px; border-radius: 10px; font-weight: bold; cursor: pointer; }
+        table { width: 100%; background: white; border-radius: 10px; border-collapse: collapse; }
+        td { padding: 12px; border-bottom: 1px solid #eee; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 100; }
+        .modal-content { background: white; margin: 20% auto; padding: 20px; width: 80%; border-radius: 10px; }
+        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
     </style>
 </head>
 <body>
 
     <script>
-        const API_URL = "TU_URL_DE_SHEETSU_AQUI"; 
+        // CAMBIA ESTO POR TU URL REAL DE SHEETSU
+        const API_URL = "https://sheetdb.io/api/v1/851m8ra8nv7bu"; 
         let datosGlobales = [];
         const fechaHoy = () => new Date().toLocaleDateString();
     </script>
-
-    <div id="inicio" class="seccion activa">
-        <h2 style="text-align:center">Ruta Cloud</h2>
-        <div class="card" style="border-left:none; text-align:center; margin: 40px 0;">
-            <p style="color:var(--muted)">Sincronización en tiempo real activa.</p>
-        </div>
-        <button class="btn-main" onclick="abrirModal('modalReg')">+ NUEVO PRÉSTAMO</button>
-    </div>
-
-    <div id="resumen" class="seccion">
-        <h2>Balance Financiero</h2>
-        <p style="font-weight:bold; color:var(--muted); font-size:0.8rem;">HOY</p>
-        <div class="grid-balance">
-            <div class="card verde"><span>Cobrado</span><b id="c_hoy">$0.00</b></div>
-            <div class="card roja"><span>Prestado</span><b id="p_hoy">$0.00</b></div>
-        </div>
-        <p style="font-weight:bold; color:var(--muted); font-size:0.8rem; margin-top:20px;">GLOBAL EN CALLE</p>
-        <div class="card" style="margin-bottom:10px; border-left-width:8px;">
-            <span>Total por cobrar</span>
-            <b id="total_calle" style="font-size:1.8rem;">$0.00</b>
-        </div>
-    </div>
-
-    <div id="clientes" class="seccion">
-        <h2>Mi Lista</h2>
-        <input type="text" id="buscador" class="search-box" placeholder="🔍 Buscar cliente..." onkeyup="filtrarClientes()">
-        <div id="loading" style="text-align:center; padding:10px; display:none; color:var(--primary);">Sincronizando...</div>
-        <table><tbody id="lista_c"></tbody></table>
-    </div>
 
     <div class="nav-bar">
         <div class="nav-item active" onclick="navegar('inicio', this)">🏠<br>Inicio</div>
@@ -79,105 +36,131 @@
         <div class="nav-item" onclick="navegar('clientes', this)">👥<br>Lista</div>
     </div>
 
-    <div id="modalReg" class="modal"><div class="modal-content">
-        <h3>Nuevo Préstamo</h3>
-        <input type="text" id="nom" placeholder="Nombre">
-        <input type="number" id="mon" placeholder="Monto">
-        <input type="number" id="int" placeholder="% Interés">
-        <button class="btn-main" style="width:100%" onclick="guardar()">GUARDAR</button>
-        <button onclick="cerrarModal('modalReg')" style="width:100%; background:none; border:none; color:red; margin-top:10px;">Cerrar</button>
-    </div></div>
+    <div id="inicio" class="seccion activa">
+        <h2>Panel de Control</h2>
+        <button class="btn-main" onclick="abrirModal()">+ NUEVO PRÉSTAMO</button>
+    </div>
+
+    <div id="resumen" class="seccion">
+        <h2>Resumen de Hoy</h2>
+        <div class="card">Cobrado: <b id="c_hoy">$0.00</b></div>
+        <div class="card">Prestado: <b id="p_hoy">$0.00</b></div>
+        <div class="card">Total Calle: <b id="t_calle">$0.00</b></div>
+    </div>
+
+    <div id="clientes" class="seccion">
+        <h2>Clientes</h2>
+        <div id="loading" style="display:none; text-align:center;">Cargando...</div>
+        <table><tbody id="lista_c"></tbody></table>
+    </div>
+
+    <div id="modalReg" class="modal">
+        <div class="modal-content">
+            <h3>Registrar Cliente</h3>
+            <input type="text" id="nom" placeholder="Nombre">
+            <input type="number" id="mon" placeholder="Monto">
+            <input type="number" id="int" placeholder="% Interés">
+            <button class="btn-main" onclick="guardar()">GUARDAR</button>
+            <button onclick="cerrarModal()" style="width:100%; background:none; border:none; color:red; margin-top:10px;">Cerrar</button>
+        </div>
+    </div>
 
     <script>
+        // Navegación Básica
         function navegar(id, el) {
             document.querySelectorAll('.seccion').forEach(s => s.classList.remove('activa'));
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
             document.getElementById(id).classList.add('activa');
             el.classList.add('active');
-            cargarDatos();
+            if(id !== 'inicio') cargarDatos();
         }
 
-        function abrirModal(id) { document.getElementById(id).style.display = 'block'; }
-        function cerrarModal(id) { document.getElementById(id).style.display = 'none'; }
+        function abrirModal() { document.getElementById('modalReg').style.display = 'block'; }
+        function cerrarModal() { document.getElementById('modalReg').style.display = 'none'; }
 
+        // Cargar Datos
         async function cargarDatos() {
             document.getElementById('loading').style.display = 'block';
             try {
-                const res = await fetch(API_URL);
-                const data = await res.json();
-                datosGlobales = Array.isArray(data) ? data : [];
+                const response = await fetch(API_URL);
+                const json = await response.json();
+                datosGlobales = Array.isArray(json) ? json : [];
                 dibujar();
-                actualizarCaja();
-            } catch (e) { console.error("Error cargando:", e); }
+                actualizarBalance();
+            } catch (err) {
+                alert("Error al conectar con la nube. Revisa la URL.");
+            }
             document.getElementById('loading').style.display = 'none';
         }
 
-        function actualizarCaja() {
-            let c_hoy = 0, p_hoy = 0, t_calle = 0;
-            datosGlobales.forEach(d => {
-                let saldo = parseFloat(d.saldo) || 0;
-                t_calle += saldo;
-                if(d.fecha_prestamo === fechaHoy()) p_hoy += parseFloat(d.total) || 0;
-                let pagos = JSON.parse(d.pagos || "[]");
-                pagos.forEach(p => { if(p.fecha === fechaHoy()) c_hoy += p.monto; });
-            });
-            document.getElementById('c_hoy').innerText = "$" + c_hoy.toFixed(2);
-            document.getElementById('p_hoy').innerText = "$" + p_hoy.toFixed(2);
-            document.getElementById('total_calle').innerText = "$" + t_calle.toFixed(2);
-        }
-
+        // Dibujar Tabla
         function dibujar() {
-            const lista = document.getElementById('lista_c');
-            lista.innerHTML = "";
-            let pends = [], pags = [];
-
+            const tbody = document.getElementById('lista_c');
+            tbody.innerHTML = "";
             datosGlobales.forEach(d => {
-                let pagoHoy = JSON.parse(d.pagos || "[]").some(p => p.fecha === fechaHoy());
-                if (pagoHoy) pags.push(d); else pends.push(d);
-            });
-
-            [...pends, ...pags].forEach(d => {
                 let s = parseFloat(d.saldo) || 0;
-                let hizoPago = JSON.parse(d.pagos || "[]").some(p => p.fecha === fechaHoy());
-                lista.innerHTML += `
-                    <tr class="${hizoPago ? 'cliente-pagado' : ''}" data-nombre="${d.nombre.toLowerCase()}">
-                        <td>
-                            <b>${d.nombre}</b> ${hizoPago ? '<span class="badge-pagado">PAGADO</span>' : ''}
-                            <br><small style="color:var(--muted)">Debe: $${s.toFixed(2)}</small>
-                        </td>
-                        <td style="text-align:right">
-                            <button onclick="cobrar('${d.id}')" style="background:${hizoPago ? '#94a3b8' : '#16a34a'}; color:white; border:none; padding:10px 15px; border-radius:8px;">$</button>
-                        </td>
-                    </tr>`;
+                tbody.innerHTML += `<tr>
+                    <td><b>${d.nombre}</b><br><small>Saldo: $${s.toFixed(2)}</small></td>
+                    <td align="right"><button onclick="cobrar('${d.id}')" style="background:#16a34a; color:white; border:none; padding:10px; border-radius:5px;">$</button></td>
+                </tr>`;
             });
         }
 
-        function filtrarClientes() {
-            let b = document.getElementById('buscador').value.toLowerCase();
-            document.querySelectorAll('#lista_c tr').forEach(f => {
-                f.style.display = f.getAttribute('data-nombre').includes(b) ? '' : 'none';
+        // Actualizar Balance
+        function actualizarBalance() {
+            let c = 0, p = 0, t = 0;
+            datosGlobales.forEach(d => {
+                t += parseFloat(d.saldo) || 0;
+                if(d.fecha_prestamo === fechaHoy()) p += parseFloat(d.total) || 0;
+                let pagos = JSON.parse(d.pagos || "[]");
+                pagos.forEach(pago => { if(pago.fecha === fechaHoy()) c += pago.monto; });
             });
+            document.getElementById('c_hoy').innerText = "$" + c.toFixed(2);
+            document.getElementById('p_hoy').innerText = "$" + p.toFixed(2);
+            document.getElementById('t_calle').innerText = "$" + t.toFixed(2);
         }
 
+        // Guardar Nuevo
         async function guardar() {
-            let n = document.getElementById('nom').value, m = parseFloat(document.getElementById('mon').value), i = parseFloat(document.getElementById('int').value) || 0;
-            if(!n || isNaN(m)) return alert("Datos incompletos");
+            let n = document.getElementById('nom').value;
+            let m = parseFloat(document.getElementById('mon').value);
+            let i = parseFloat(document.getElementById('int').value) || 0;
+            if(!n || !m) return alert("Llena los campos");
+
             let total = m + (m * (i/100));
-            let nuevo = { id: Date.now().toString(), nombre: n, saldo: total.toString(), total: total.toString(), pagos: "[]", fecha_prestamo: fechaHoy() };
-            await fetch(API_URL, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify([nuevo]) });
-            cerrarModal('modalReg');
-            document.getElementById('nom').value = ""; document.getElementById('mon').value = "";
+            let nuevo = { 
+                id: Date.now().toString(), 
+                nombre: n, 
+                saldo: total.toString(), 
+                total: total.toString(), 
+                pagos: "[]", 
+                fecha_prestamo: fechaHoy() 
+            };
+
+            await fetch(API_URL, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify([nuevo])
+            });
+            cerrarModal();
             cargarDatos();
         }
 
+        // Cobrar
         async function cobrar(id) {
-            let monto = prompt("Monto del abono:");
-            if(!monto || isNaN(monto)) return;
+            let abono = prompt("Monto del abono:");
+            if(!abono || isNaN(abono)) return;
+            
             let cli = datosGlobales.find(x => x.id === id);
-            let pagos = JSON.parse(cli.pagos || "[]");
-            pagos.push({ pid: Date.now(), fecha: fechaHoy(), monto: parseFloat(monto) });
-            let nuevoSaldo = parseFloat(cli.saldo) - parseFloat(monto);
-            await fetch(`${API_URL}/id/${id}`, { method: 'PATCH', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ saldo: nuevoSaldo.toString(), pagos: JSON.stringify(pagos) }) });
+            let pgs = JSON.parse(cli.pagos || "[]");
+            pgs.push({ fecha: fechaHoy(), monto: parseFloat(abono) });
+            let ns = parseFloat(cli.saldo) - parseFloat(abono);
+
+            await fetch(API_URL + "/id/" + id, {
+                method: 'PATCH',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ saldo: ns.toString(), pagos: JSON.stringify(pgs) })
+            });
             cargarDatos();
         }
     </script>
