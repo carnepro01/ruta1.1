@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Ruta Pro - Control Total</title>
     <style>
         :root { --primary: #2563eb; --success: #16a34a; --bg: #f8fafc; --text: #1e293b; --danger: #ef4444; --warning: #f59e0b; --muted: #64748b; }
@@ -13,14 +13,14 @@
         .nav-item { cursor: pointer; font-size: 0.8rem; font-weight: bold; color: #666; text-align: center; }
         .nav-item.active { color: var(--primary); }
         
-        /* Tarjetas de Caja */
+        /* Tarjetas */
         .card { background: white; padding: 15px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         .card b { display: block; font-size: 1.3rem; margin-top: 5px; }
         .card span { font-size: 0.7rem; font-weight: bold; color: var(--muted); text-transform: uppercase; }
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
-        /* Lista */
-        table { width: 100%; background: white; border-radius: 10px; border-collapse: collapse; }
+        /* Lista y Tablas */
+        table { width: 100%; background: white; border-radius: 10px; border-collapse: collapse; overflow: hidden; }
         td { padding: 12px; border-bottom: 1px solid #eee; }
         .pagado { background: #f0fdf4; }
         .badge-pagado { color: var(--success); font-size: 0.6rem; border: 1px solid var(--success); padding: 2px 4px; border-radius: 4px; margin-left: 5px; font-weight: bold; }
@@ -28,29 +28,17 @@
 
         .btn-main { background: var(--primary); color: white; border: none; width: 100%; padding: 15px; border-radius: 10px; font-weight: bold; cursor: pointer; }
         .btn-opt { width: 100%; padding: 15px; margin-bottom: 10px; border-radius: 10px; border: none; font-weight: bold; color: white; cursor: pointer; }
+        
+        /* Modales */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 200; }
         .modal-content { background: white; margin: 15% auto; padding: 20px; width: 85%; max-width: 400px; border-radius: 15px; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
+        
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
+        input:focus { outline: none; border-color: var(--primary); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
     </style>
 </head>
 <body>
-
-    <script>
-        const API_URL = "https://sheetdb.io/api/v1/851m8ra8nv7bu"; 
-        let datosGlobales = [];
-        let clienteSel = null;
-        const fechaHoy = () => new Date().toLocaleDateString();
-
-        const esDeEstaSemana = (fechaStr) => {
-            if(!fechaStr) return false;
-            const [d, m, y] = fechaStr.split('/');
-            const fecha = new Date(y, m - 1, d);
-            const hoy = new Date();
-            const sieteDiasAgo = new Date();
-            sieteDiasAgo.setDate(hoy.getDate() - 7);
-            return fecha >= sieteDiasAgo && fecha <= hoy;
-        };
-    </script>
 
     <div class="nav-bar">
         <div class="nav-item active" onclick="navegar('inicio', this)">🏠<br>Inicio</div>
@@ -60,18 +48,19 @@
 
     <div id="inicio" class="seccion activa">
         <h2 style="text-align:center">Ruta Cloud</h2>
-        <button class="btn-main" onclick="abrirModal('modalReg')">+ NUEVO PRÉSTAMO</button>
+        <div class="card" style="text-align: center; border-top: 4px solid var(--primary);">
+            <p>Bienvenido al control de ruta.</p>
+            <button class="btn-main" onclick="abrirModal('modalReg')">+ NUEVO PRÉSTAMO</button>
+        </div>
     </div>
 
     <div id="resumen" class="seccion">
         <h2>Balance de Caja</h2>
-        
         <span>Resumen de Hoy</span>
         <div class="grid" style="margin-top:5px; margin-bottom:20px;">
             <div class="card" style="border-left: 4px solid var(--success);"><span>Cobrado</span><b id="c_hoy">$0</b></div>
             <div class="card" style="border-left: 4px solid var(--danger);"><span>Prestado</span><b id="p_hoy">$0</b></div>
         </div>
-
         <span>Últimos 7 Días</span>
         <div class="card" style="border-left: 4px solid var(--primary);">
             <div class="grid">
@@ -79,7 +68,6 @@
                 <div><span>Préstamos</span><b id="p_semana" style="color:var(--danger); font-size:1.1rem;">$0</b></div>
             </div>
         </div>
-
         <div class="card">
             <span>Capital en Calle</span>
             <b id="t_calle" style="color:var(--primary); font-size:1.5rem;">$0</b>
@@ -88,8 +76,8 @@
 
     <div id="clientes" class="seccion">
         <h2>Lista de Cobro</h2>
-        <input type="text" id="buscador" placeholder="🔍 Buscar cliente..." onkeyup="filtrar()" style="width:100%; padding:10px; margin-bottom:10px; border-radius:8px; border:1px solid #ddd;">
-        <div id="loading" style="display:none; text-align:center; color:blue; font-weight:bold;">Sincronizando...</div>
+        <input type="text" id="buscador" placeholder="🔍 Buscar cliente..." onkeyup="filtrar()">
+        <div id="loading" style="display:none; text-align:center; color:var(--primary); font-weight:bold; margin-bottom:10px;">Sincronizando...</div>
         <table><tbody id="lista_c"></tbody></table>
     </div>
 
@@ -99,7 +87,7 @@
         <input type="number" id="mon" placeholder="Monto">
         <input type="number" id="int" placeholder="% Interés">
         <input type="number" id="pos" placeholder="Posición">
-        <button class="btn-main" onclick="guardar()">GUARDAR</button>
+        <button id="btnGuardar" class="btn-main" onclick="guardar()">GUARDAR</button>
         <button onclick="cerrarModal('modalReg')" style="width:100%; background:none; border:none; color:red; margin-top:10px;">Cerrar</button>
     </div></div>
 
@@ -119,6 +107,21 @@
     </div></div>
 
     <script>
+        const API_URL = "https://sheetdb.io/api/v1/851m8ra8nv7bu"; 
+        let datosGlobales = [];
+        let clienteSel = null;
+        const fechaHoy = () => new Date().toLocaleDateString();
+
+        const esDeEstaSemana = (fechaStr) => {
+            if(!fechaStr) return false;
+            const [d, m, y] = fechaStr.split('/');
+            const fecha = new Date(y, m - 1, d);
+            const hoy = new Date();
+            const sieteDiasAgo = new Date();
+            sieteDiasAgo.setDate(hoy.getDate() - 7);
+            return fecha >= sieteDiasAgo && fecha <= hoy;
+        };
+
         function navegar(id, el) {
             document.querySelectorAll('.seccion').forEach(s => s.classList.remove('activa'));
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
@@ -151,7 +154,11 @@
                 tc += s;
                 if(d.fecha_prestamo === fechaHoy()) ph += t;
                 if(esDeEstaSemana(d.fecha_prestamo)) ps += t;
-                JSON.parse(d.pagos || "[]").forEach(pg => {
+                
+                let pgs = [];
+                try { pgs = JSON.parse(d.pagos || "[]"); } catch(e) { pgs = []; }
+                
+                pgs.forEach(pg => {
                     if(pg.fecha === fechaHoy()) ch += pg.monto;
                     if(esDeEstaSemana(pg.fecha)) cs += pg.monto;
                 });
@@ -168,7 +175,10 @@
             lista.innerHTML = "";
             datosGlobales.forEach(d => {
                 let s = parseFloat(d.saldo) || 0;
-                let pagadoHoy = JSON.parse(d.pagos || "[]").some(p => p.fecha === fechaHoy());
+                let pgs = [];
+                try { pgs = JSON.parse(d.pagos || "[]"); } catch(e) { pgs = []; }
+                let pagadoHoy = pgs.some(p => p.fecha === fechaHoy());
+                
                 lista.innerHTML += `<tr class="${pagadoHoy ? 'pagado' : ''}" data-nombre="${d.nombre.toLowerCase()}">
                     <td>
                         <span class="pos-num">${d.posicion || '--'}</span>
@@ -176,63 +186,136 @@
                         ${pagadoHoy ? '<span class="badge-pagado">PAGADO</span>' : ''}
                         <br><small style="margin-left:38px;">Saldo: $${s.toFixed(2)}</small>
                     </td>
-                    <td align="right"><button onclick="cobrar('${d.id}')" style="background:${pagadoHoy ? '#94a3b8' : '#16a34a'}; color:white; border:none; padding:12px; border-radius:8px;">$</button></td>
+                    <td align="right">
+                        <button onclick="cobrar('${d.id}', event)" ${pagadoHoy ? 'disabled' : ''} 
+                            style="background:${pagadoHoy ? '#94a3b8' : '#16a34a'}; color:white; border:none; padding:12px; border-radius:8px; width:45px;">$</button>
+                    </td>
                 </tr>`;
             });
         }
 
-        async function cambiarPos() {
-            let nPos = parseInt(prompt("Mover a la posición número:", clienteSel.posicion));
-            if(isNaN(nPos)) return;
-            document.getElementById('loading').style.display = 'block';
-            for (let cli of datosGlobales) {
-                if (cli.id === clienteSel.id) {
-                    await fetch(`${API_URL}/id/${cli.id}`, { method: 'PATCH', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ posicion: nPos.toString() }) });
-                } else if (parseInt(cli.posicion) >= nPos) {
-                    await fetch(`${API_URL}/id/${cli.id}`, { method: 'PATCH', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ posicion: (parseInt(cli.posicion) + 1).toString() }) });
-                }
-            }
-            cerrarModal('modalMenu');
-            cargarDatos();
-        }
-
-        async function cobrar(id) {
+        async function cobrar(id, event) {
             let a = prompt("Monto del abono:");
-            if(!a || isNaN(a)) return;
+            if(!a || isNaN(a) || parseFloat(a) <= 0) return;
+
+            const btn = event.target;
+            btn.disabled = true;
+            btn.innerText = "...";
+
             let cli = datosGlobales.find(x => x.id === id);
-            let pgs = JSON.parse(cli.pagos || "[]");
-            pgs.push({ pid: Date.now(), fecha: fechaHoy(), monto: parseFloat(a) });
-            let ns = parseFloat(cli.saldo) - parseFloat(a);
-            await fetch(API_URL + "/id/" + id, { method: 'PATCH', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ saldo: ns.toString(), pagos: JSON.stringify(pgs) }) });
-            cargarDatos();
+            let pgs = [];
+            try { pgs = JSON.parse(cli.pagos || "[]"); } catch(e) { pgs = []; }
+            
+            let montoAbono = parseFloat(a);
+            pgs.push({ pid: Date.now(), fecha: fechaHoy(), monto: montoAbono });
+            let ns = parseFloat(cli.saldo) - montoAbono;
+
+            try {
+                await fetch(`${API_URL}/id/${id}`, { 
+                    method: 'PATCH', 
+                    headers: {'Content-Type': 'application/json'}, 
+                    body: JSON.stringify({ saldo: ns.toFixed(2), pagos: JSON.stringify(pgs) }) 
+                });
+                
+                if(confirm("¿Enviar recibo por WhatsApp?")) {
+                    const mensaje = `*RECIBO DE PAGO*%0A%0ACliente: ${cli.nombre}%0AFec: ${fechaHoy()}%0AAbono: $${montoAbono}%0ASaldo Pendiente: $${ns.toFixed(2)}%0A%0AGracias por su pago.`;
+                    window.open(`https://wa.me/?text=${mensaje}`);
+                }
+                
+                cargarDatos();
+            } catch (e) {
+                alert("Error al procesar");
+                btn.disabled = false;
+                btn.innerText = "$";
+            }
         }
 
         async function guardar() {
-            let n = document.getElementById('nom').value, m = parseFloat(document.getElementById('mon').value), 
-                i = parseFloat(document.getElementById('int').value) || 0, p = document.getElementById('pos').value || "99";
+            const btn = document.getElementById('btnGuardar');
+            let n = document.getElementById('nom').value, 
+                m = parseFloat(document.getElementById('mon').value), 
+                i = parseFloat(document.getElementById('int').value) || 0, 
+                p = document.getElementById('pos').value || "99";
+            
             if(!n || !m) return;
-            if(clienteSel && clienteSel.nombre == n) await fetch(API_URL + "/id/" + clienteSel.id, { method: 'DELETE' });
+            btn.disabled = true;
+
+            if(clienteSel && clienteSel.nombre == n) {
+                await fetch(API_URL + "/id/" + clienteSel.id, { method: 'DELETE' });
+            }
+
             let tot = m + (m * (i/100));
-            let nuevo = { id: Date.now().toString(), nombre: n, saldo: tot.toString(), total: tot.toString(), pagos: "[]", fecha_prestamo: fechaHoy(), posicion: p };
-            await fetch(API_URL, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify([nuevo]) });
+            let nuevo = { 
+                id: Date.now().toString(), 
+                nombre: n, 
+                saldo: tot.toFixed(2), 
+                total: tot.toFixed(2), 
+                pagos: "[]", 
+                fecha_prestamo: fechaHoy(), 
+                posicion: p 
+            };
+
+            await fetch(API_URL, { 
+                method: 'POST', 
+                headers: {'Content-Type': 'application/json'}, 
+                body: JSON.stringify([nuevo]) 
+            });
+
             cerrarModal('modalReg');
+            document.getElementById('nom').value = "";
+            document.getElementById('mon').value = "";
+            btn.disabled = false;
             cargarDatos();
         }
 
-        function abrirMenu(id) { clienteSel = datosGlobales.find(x => x.id === id); document.getElementById('menu_nombre').innerText = clienteSel.nombre; abrirModal('modalMenu'); }
-        async function eliminarCli() { if(confirm("¿Eliminar?")) { await fetch(API_URL + "/id/" + clienteSel.id, { method: 'DELETE' }); cerrarModal('modalMenu'); cargarDatos(); } }
+        function abrirMenu(id) { 
+            clienteSel = datosGlobales.find(x => x.id === id); 
+            document.getElementById('menu_nombre').innerText = clienteSel.nombre; 
+            abrirModal('modalMenu'); 
+        }
+
+        async function eliminarCli() { 
+            if(confirm("¿Eliminar este cliente definitivamente?")) { 
+                await fetch(API_URL + "/id/" + clienteSel.id, { method: 'DELETE' }); 
+                cerrarModal('modalMenu'); 
+                cargarDatos(); 
+            } 
+        }
+
         function verHis() {
-            let pgs = JSON.parse(clienteSel.pagos || "[]");
+            let pgs = [];
+            try { pgs = JSON.parse(clienteSel.pagos || "[]"); } catch(e) { pgs = []; }
             let h = pgs.map(p => `<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #eee;"><span>${p.fecha}: <b>$${p.monto}</b></span></div>`).join('');
             document.getElementById('his_lista').innerHTML = h || "Sin pagos";
-            cerrarModal('modalMenu'); abrirModal('modalHis');
+            cerrarModal('modalMenu'); 
+            abrirModal('modalHis');
         }
+
         function filtrar() {
             let b = document.getElementById('buscador').value.toLowerCase();
-            document.querySelectorAll('#lista_c tr').forEach(tr => { tr.style.display = tr.getAttribute('data-nombre').includes(b) ? '' : 'none'; });
+            document.querySelectorAll('#lista_c tr').forEach(tr => { 
+                tr.style.display = tr.getAttribute('data-nombre').includes(b) ? '' : 'none'; 
+            });
         }
-        function prepararRenovar() { document.getElementById('nom').value = clienteSel.nombre; document.getElementById('pos').value = clienteSel.posicion; cerrarModal('modalMenu'); abrirModal('modalReg'); }
+
+        function prepararRenovar() { 
+            document.getElementById('nom').value = clienteSel.nombre; 
+            document.getElementById('pos').value = clienteSel.posicion; 
+            cerrarModal('modalMenu'); 
+            abrirModal('modalReg'); 
+        }
+
+        async function cambiarPos() {
+            let nPos = prompt("Nueva posición:", clienteSel.posicion);
+            if(nPos === null) return;
+            await fetch(`${API_URL}/id/${clienteSel.id}`, { 
+                method: 'PATCH', 
+                headers: {'Content-Type': 'application/json'}, 
+                body: JSON.stringify({ posicion: nPos }) 
+            });
+            cerrarModal('modalMenu');
+            cargarDatos();
+        }
     </script>
 </body>
 </html>
-
