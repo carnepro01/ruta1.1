@@ -7,38 +7,26 @@
     <style>
         :root { --primary: #2563eb; --success: #16a34a; --bg: #f8fafc; --text: #1e293b; --danger: #ef4444; --warning: #f59e0b; --muted: #64748b; }
         body { font-family: sans-serif; background: var(--bg); margin: 0; padding-bottom: 80px; color: var(--text); }
-        
-        /* Navegación */
         .nav-bar { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #ddd; z-index: 100; }
         .nav-item { cursor: pointer; font-size: 0.8rem; font-weight: bold; color: #666; text-align: center; }
         .nav-item.active { color: var(--primary); }
-        
-        /* Secciones */
         .seccion { display: none; padding: 20px; }
         .activa { display: block; }
-        
-        /* Tarjetas y UI */
         .card { background: white; padding: 15px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         .card b { display: block; font-size: 1.3rem; margin-top: 5px; }
         .card span { font-size: 0.7rem; font-weight: bold; color: var(--muted); text-transform: uppercase; }
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        
-        /* Tablas */
         table { width: 100%; background: white; border-radius: 10px; border-collapse: collapse; }
         td { padding: 12px; border-bottom: 1px solid #eee; }
         .pagado { background: #f0fdf4; }
         .badge-pagado { color: var(--success); font-size: 0.6rem; border: 1px solid var(--success); padding: 2px 4px; border-radius: 4px; margin-left: 5px; font-weight: bold; }
         .pos-num { background: #3b82f6; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; margin-right: 8px; font-weight: bold; }
-        
-        /* Botones e Inputs */
         .btn-main { background: var(--primary); color: white; border: none; width: 100%; padding: 15px; border-radius: 10px; font-weight: bold; cursor: pointer; }
         .btn-opt { width: 100%; padding: 15px; margin-bottom: 10px; border-radius: 10px; border: none; font-weight: bold; color: white; cursor: pointer; font-size: 0.9rem; text-align: left; }
         input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
         button:disabled { opacity: 0.5; }
-        
-        /* Modales */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 200; }
-        .modal-content { background: white; margin: 10% auto; padding: 20px; width: 85%; max-width: 400px; border-radius: 15px; position: relative; }
+        .modal-content { background: white; margin: 10% auto; padding: 20px; width: 85%; max-width: 400px; border-radius: 15px; }
         .btn-del-pago { background: var(--danger); color: white; border: none; padding: 5px 10px; border-radius: 5px; font-size: 0.7rem; cursor: pointer; }
     </style>
 </head>
@@ -74,9 +62,9 @@
     <div id="modalReg" class="modal"><div class="modal-content">
         <h3 id="tituloReg">Nuevo Préstamo</h3>
         <input type="text" id="nom" placeholder="Nombre del cliente">
-        <input type="number" id="mon" placeholder="Monto prestado">
+        <input type="number" id="mon" placeholder="Monto">
         <input type="number" id="int" placeholder="% Interés" value="20">
-        <input type="number" id="pos" placeholder="Posición en lista">
+        <input type="number" id="pos" placeholder="Posición">
         <button id="btnGuardar" class="btn-main" onclick="guardar()">GUARDAR</button>
         <button onclick="cerrarModal('modalReg')" style="width:100%; background:none; border:none; color:red; margin-top:10px;">Cancelar</button>
     </div></div>
@@ -102,7 +90,6 @@
         let clienteSel = null;
         const fechaHoy = () => new Date().toLocaleDateString();
 
-        // NAVEGACIÓN
         function navegar(id, el) {
             document.querySelectorAll('.seccion').forEach(s => s.classList.remove('activa'));
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
@@ -114,7 +101,6 @@
         function abrirModal(id) { document.getElementById(id).style.display = 'block'; }
         function cerrarModal(id) { document.getElementById(id).style.display = 'none'; }
 
-        // CARGAR DATOS
         async function cargarDatos() {
             document.getElementById('loading').style.display = 'block';
             try {
@@ -124,18 +110,16 @@
                 datosGlobales.sort((a, b) => (Number(a.posicion) || 999) - (Number(b.posicion) || 999));
                 dibujar();
                 actualizarBalance();
-            } catch (e) { console.error("Error cargando:", e); }
+            } catch (e) { console.error(e); }
             document.getElementById('loading').style.display = 'none';
         }
 
-        // BALANCES
         function actualizarBalance() {
             let ch=0, ph=0, tc=0;
             datosGlobales.forEach(d => {
                 tc += parseFloat(d.saldo) || 0;
                 if(d.fecha_prestamo === fechaHoy()) ph += parseFloat(d.total) || 0;
-                let pgs = [];
-                try { pgs = JSON.parse(d.pagos || "[]"); } catch(e) { pgs = []; }
+                let pgs = JSON.parse(d.pagos || "[]");
                 pgs.forEach(p => { if(p.fecha === fechaHoy()) ch += p.monto; });
             });
             document.getElementById('c_hoy').innerText = "$" + ch.toFixed(2);
@@ -143,13 +127,11 @@
             document.getElementById('t_calle').innerText = "$" + tc.toFixed(2);
         }
 
-        // DIBUJAR LISTA
         function dibujar() {
             const lista = document.getElementById('lista_c');
             lista.innerHTML = "";
             datosGlobales.forEach(d => {
-                let pgs = [];
-                try { pgs = JSON.parse(d.pagos || "[]"); } catch(e) { pgs = []; }
+                let pgs = JSON.parse(d.pagos || "[]");
                 let pagadoHoy = pgs.some(p => p.fecha === fechaHoy());
                 lista.innerHTML += `<tr class="${pagadoHoy ? 'pagado' : ''}" data-nombre="${d.nombre.toLowerCase()}">
                     <td>
@@ -163,7 +145,6 @@
             });
         }
 
-        // COBRAR
         async function cobrar(id, event) {
             let a = prompt("Monto del abono:");
             if(!a || isNaN(a) || parseFloat(a) <= 0) return;
@@ -171,33 +152,22 @@
             btn.disabled = true;
 
             let cli = datosGlobales.find(x => x.id == id);
-            let pgs = [];
-            try { pgs = JSON.parse(cli.pagos || "[]"); } catch(e) { pgs = []; }
-            
+            let pgs = JSON.parse(cli.pagos || "[]");
             let monto = parseFloat(a);
             pgs.push({ pid: Date.now(), fecha: fechaHoy(), monto: monto });
             let ns = parseFloat(cli.saldo) - monto;
 
             await enviarGoogle({ method: 'PATCH', id: id, saldo: ns.toFixed(2), pagos: JSON.stringify(pgs) });
-            
-            setTimeout(() => { 
-                if(confirm("¿Enviar recibo por WhatsApp?")) {
-                    window.open(`https://wa.me/?text=*RECIBO DE PAGO*%0ACliente: ${cli.nombre}%0AAbono: $${monto}%0ASaldo Pendiente: $${ns.toFixed(2)}`);
-                }
-                cargarDatos(); 
-            }, 800);
+            setTimeout(cargarDatos, 800);
         }
 
-        // GUARDAR NUEVO / EDITAR
         async function guardar() {
             const btn = document.getElementById('btnGuardar');
             let n = document.getElementById('nom').value, m = parseFloat(document.getElementById('mon').value),
                 i = parseFloat(document.getElementById('int').value) || 0, p = document.getElementById('pos').value || "99";
-            
-            if(!n || !m) { alert("Nombre y Monto son obligatorios"); return; }
+            if(!n || !m) return;
             btn.disabled = true;
 
-            // Si es edición/renovación, borramos el anterior primero
             if(clienteSel && clienteSel.nombre == n) {
                 await enviarGoogle({ method: 'DELETE', id: clienteSel.id });
             }
@@ -207,7 +177,6 @@
             await enviarGoogle(nuevo);
             
             setTimeout(() => { 
-                clienteSel = null;
                 cerrarModal('modalReg'); 
                 cargarDatos(); 
                 btn.disabled = false;
@@ -216,7 +185,6 @@
             }, 800);
         }
 
-        // ACCIONES DEL MENÚ
         function abrirMenu(id) { 
             clienteSel = datosGlobales.find(x => x.id == id); 
             document.getElementById('menu_nombre').innerText = clienteSel.nombre; 
@@ -224,67 +192,4 @@
         }
 
         async function eliminarCli() {
-            if(!confirm("¿Eliminar cliente definitivamente?")) return;
-            cerrarModal('modalMenu');
-            await enviarGoogle({ method: 'DELETE', id: clienteSel.id });
-            setTimeout(cargarDatos, 800);
-        }
-
-        async function cambiarPos() {
-            let nPos = prompt("Nueva posición:", clienteSel.posicion);
-            if(nPos === null) return;
-            cerrarModal('modalMenu');
-            await enviarGoogle({ method: 'PATCH', id: clienteSel.id, posicion: nPos });
-            setTimeout(cargarDatos, 800);
-        }
-
-        function prepararRenovar() { 
-            document.getElementById('nom').value = clienteSel.nombre; 
-            document.getElementById('pos').value = clienteSel.posicion; 
-            document.getElementById('tituloReg').innerText = "Renovar / Editar";
-            cerrarModal('modalMenu'); 
-            abrirModal('modalReg'); 
-        }
-
-        // HISTORIAL Y BORRAR PAGO
-        function verHis() {
-            let pgs = [];
-            try { pgs = JSON.parse(clienteSel.pagos || "[]"); } catch(e) { pgs = []; }
-            let h = pgs.map(p => `
-                <div style="display:flex; justify-content:space-between; align-items:center; padding:10px; border-bottom:1px solid #eee;">
-                    <span>${p.fecha}: <b>$${p.monto}</b></span>
-                    <button class="btn-del-pago" onclick="eliminarPago('${p.pid}')">Eliminar</button>
-                </div>
-            `).join('');
-            document.getElementById('his_lista').innerHTML = h || "Sin pagos registrados";
-            cerrarModal('modalMenu'); 
-            abrirModal('modalHis');
-        }
-
-        async function eliminarPago(pid) {
-            if(!confirm("¿Borrar este pago y devolver el saldo?")) return;
-            let pgs = JSON.parse(clienteSel.pagos || "[]");
-            let pagoAEliminar = pgs.find(p => p.pid == pid);
-            let nuevosPagos = pgs.filter(p => p.pid != pid);
-            let nuevoSaldo = parseFloat(clienteSel.saldo) + parseFloat(pagoAEliminar.monto);
-
-            await enviarGoogle({ method: 'PATCH', id: clienteSel.id, saldo: nuevoSaldo.toFixed(2), pagos: JSON.stringify(nuevosPagos) });
-            cerrarModal('modalHis');
-            setTimeout(cargarDatos, 800);
-        }
-
-        // AUXILIARES
-        async function enviarGoogle(datos) {
-            document.getElementById('loading').style.display = 'block';
-            return fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(datos) });
-        }
-
-        function filtrar() {
-            let b = document.getElementById('buscador').value.toLowerCase();
-            document.querySelectorAll('#lista_c tr').forEach(tr => { 
-                tr.style.display = tr.getAttribute('data-nombre').includes(b) ? '' : 'none'; 
-            });
-        }
-    </script>
-</body>
-</html>
+            if(!confirm("¿Eliminar
