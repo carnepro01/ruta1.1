@@ -3,94 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ruta Pro Cloud v2</title>
+    <title>Ruta Pro V3</title>
     <style>
-        :root { --primary: #2563eb; --success: #16a34a; --bg: #f8fafc; --text: #1e293b; --danger: #ef4444; --warning: #f59e0b; --muted: #64748b; }
-        body { font-family: sans-serif; background: var(--bg); margin: 0; padding-bottom: 80px; color: var(--text); }
+        :root { --primary: #2563eb; --success: #16a34a; --bg: #f1f5f9; --text: #1e293b; --danger: #ef4444; --warning: #f59e0b; --dark: #0f172a; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); margin: 0; padding-bottom: 90px; color: var(--text); }
         
-        /* Navegación */
-        .nav-bar { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #ddd; z-index: 100; }
-        .nav-item { cursor: pointer; font-size: 0.8rem; font-weight: bold; color: #666; text-align: center; }
-        .nav-item.active { color: var(--primary); }
-        
-        /* General */
-        .seccion { display: none; padding: 20px; }
+        /* BARRA DE NAVEGACIÓN NEGRA (Para verificar actualización) */
+        .nav-bar { position: fixed; bottom: 0; width: 100%; background: var(--dark); display: flex; justify-content: space-around; padding: 12px 0; z-index: 1000; box-shadow: 0 -2px 10px rgba(0,0,0,0.2); }
+        .nav-item { cursor: pointer; font-size: 0.75rem; font-weight: bold; color: #94a3b8; text-align: center; transition: 0.2s; }
+        .nav-item.active { color: #fff; transform: scale(1.1); }
+        .nav-item span { font-size: 1.4rem; display: block; margin-bottom: 2px; }
+
+        .seccion { display: none; padding: 20px; animation: fadeIn 0.3s; }
         .activa { display: block; }
-        .card { background: white; padding: 15px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .card b { display: block; font-size: 1.3rem; margin-top: 5px; }
-        .card span { font-size: 0.7rem; font-weight: bold; color: var(--muted); text-transform: uppercase; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Tarjetas */
+        .card { background: white; padding: 20px; border-radius: 16px; margin-bottom: 15px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         
         /* Lista */
-        table { width: 100%; background: white; border-radius: 10px; border-collapse: collapse; }
-        td { padding: 12px; border-bottom: 1px solid #eee; }
-        .pagado { background: #f0fdf4; }
-        .badge-pagado { color: var(--success); font-size: 0.6rem; border: 1px solid var(--success); padding: 2px 4px; border-radius: 4px; margin-left: 5px; font-weight: bold; }
-        .pos-num { background: #3b82f6; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; margin-right: 8px; font-weight: bold; }
-        
-        /* UI Elementos */
-        .btn-main { background: var(--primary); color: white; border: none; width: 100%; padding: 15px; border-radius: 10px; font-weight: bold; cursor: pointer; }
-        .btn-opt { width: 100%; padding: 15px; margin-bottom: 10px; border-radius: 10px; border: none; font-weight: bold; color: white; cursor: pointer; font-size: 1rem; text-align: left; display: flex; align-items: center; }
-        .btn-opt span { margin-right: 10px; font-size: 1.2rem; } 
-        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
-        button:disabled { opacity: 0.5; }
-        
+        table { width: 100%; background: white; border-radius: 12px; border-collapse: separate; border-spacing: 0; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        td { padding: 15px; border-bottom: 1px solid #f1f5f9; }
+        tr:last-child td { border-bottom: none; }
+        .pagado { background: #ecfdf5; }
+        .badge-pagado { background: #dcfce7; color: var(--success); font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; font-weight: 800; letter-spacing: 0.5px; border: 1px solid #bbf7d0; }
+        .pos-num { background: var(--dark); color: white; padding: 3px 8px; border-radius: 6px; font-size: 0.8rem; margin-right: 10px; font-weight: bold; }
+
+        /* Botones e Inputs */
+        .btn-main { background: var(--primary); color: white; border: none; width: 100%; padding: 16px; border-radius: 12px; font-weight: 700; font-size: 1rem; cursor: pointer; box-shadow: 0 4px 6px rgba(37, 99, 235, 0.3); }
+        input { width: 100%; padding: 14px; margin: 10px 0; border: 2px solid #e2e8f0; border-radius: 10px; box-sizing: border-box; font-size: 16px; outline: none; transition: 0.2s; }
+        input:focus { border-color: var(--primary); background: white; }
+
+        /* Botones del Menú (Grandes y claros) */
+        .btn-opt { width: 100%; padding: 15px; margin-bottom: 12px; border-radius: 10px; border: none; font-weight: 600; color: white; cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: flex-start; text-align: left; }
+        .btn-opt span { font-size: 1.5rem; margin-right: 15px; width: 30px; text-align: center; }
+
         /* Modales */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 200; }
-        .modal-content { background: white; margin: 10% auto; padding: 20px; width: 85%; max-width: 400px; border-radius: 15px; }
-        
-        /* Botón Eliminar Pago */
-        .btn-del-pago { background: var(--danger); color: white; border: none; padding: 8px 12px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; font-weight: bold; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; backdrop-filter: blur(2px); }
+        .modal-content { background: white; margin: 15vh auto; padding: 25px; width: 85%; max-width: 400px; border-radius: 20px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); animation: slideUp 0.3s; }
+        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        .btn-del-pago { background: #fee2e2; color: #991b1b; border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div class="nav-bar">
-        <div class="nav-item active" onclick="navegar('inicio', this)">🏠<br>Inicio</div>
-        <div class="nav-item" onclick="navegar('resumen', this)">📊<br>Caja</div>
-        <div class="nav-item" onclick="navegar('clientes', this)">👥<br>Lista</div>
+        <div class="nav-item active" onclick="navegar('inicio', this)"><span>🏠</span>Inicio</div>
+        <div class="nav-item" onclick="navegar('resumen', this)"><span>📊</span>Caja</div>
+        <div class="nav-item" onclick="navegar('clientes', this)"><span>👥</span>Lista</div>
     </div>
 
     <div id="inicio" class="seccion activa">
-        <h2 style="text-align:center">Ruta Cloud</h2>
-        <button class="btn-main" onclick="abrirModal('modalReg')">+ NUEVO PRÉSTAMO</button>
+        <h2 style="text-align:center; color:var(--dark);">RUTA PRO V3</h2>
+        <div class="card" style="text-align:center;">
+            <p style="color:gray;">Bienvenido</p>
+            <button class="btn-main" onclick="abrirModal('modalReg')">+ NUEVO PRÉSTAMO</button>
+        </div>
     </div>
 
     <div id="resumen" class="seccion">
-        <h2>Balance de Caja</h2>
+        <h2>Balance del Día</h2>
         <div class="grid">
-            <div class="card" style="border-left: 4px solid var(--success);"><span>Cobrado Hoy</span><b id="c_hoy">$0</b></div>
-            <div class="card" style="border-left: 4px solid var(--danger);"><span>Prestado Hoy</span><b id="p_hoy">$0</b></div>
+            <div class="card" style="border-top: 4px solid var(--success);">
+                <span style="color:var(--success)">Cobrado Hoy</span>
+                <b id="c_hoy" style="color:var(--dark); font-size:1.4rem;">$0</b>
+            </div>
+            <div class="card" style="border-top: 4px solid var(--danger);">
+                <span style="color:var(--danger)">Prestado Hoy</span>
+                <b id="p_hoy" style="color:var(--dark); font-size:1.4rem;">$0</b>
+            </div>
         </div>
-        <div class="card" style="border-left: 4px solid var(--primary);"><span>Capital en Calle</span><b id="t_calle">$0</b></div>
+        <div class="card" style="border-top: 4px solid var(--primary);">
+            <span>Capital Total en Calle</span>
+            <b id="t_calle" style="color:var(--primary); font-size:1.6rem;">$0</b>
+        </div>
     </div>
 
     <div id="clientes" class="seccion">
         <h2>Lista de Cobro</h2>
         <input type="text" id="buscador" placeholder="🔍 Buscar cliente..." onkeyup="filtrar()">
-        <div id="loading" style="display:none; text-align:center; color:blue; font-weight:bold; margin-bottom:10px;">Sincronizando...</div>
+        <div id="loading" style="display:none; text-align:center; padding:10px; color:var(--primary); font-weight:bold;">🔄 Sincronizando con Google...</div>
         <table><tbody id="lista_c"></tbody></table>
     </div>
 
     <div id="modalReg" class="modal"><div class="modal-content">
-        <h3 id="tituloReg">Nuevo Préstamo</h3>
-        <input type="text" id="nom" placeholder="Nombre del cliente">
-        <input type="number" id="mon" placeholder="Monto">
-        <input type="number" id="int" placeholder="% Interés" value="20">
-        <input type="number" id="pos" placeholder="Posición">
-        <button id="btnGuardar" class="btn-main" onclick="guardar()">GUARDAR</button>
-        <button onclick="cerrarModal('modalReg')" style="width:100%; background:none; border:none; color:red; margin-top:10px;">Cancelar</button>
+        <h3 id="tituloReg" style="margin-top:0;">Nuevo Préstamo</h3>
+        <input type="text" id="nom" placeholder="Nombre completo">
+        <input type="number" id="mon" placeholder="Monto ($)">
+        <input type="number" id="int" placeholder="Interés (%)" value="20">
+        <input type="number" id="pos" placeholder="Posición en lista">
+        <button id="btnGuardar" class="btn-main" onclick="guardar()">GUARDAR DATOS</button>
+        <button onclick="cerrarModal('modalReg')" style="width:100%; padding:15px; background:none; border:none; color:var(--danger); font-weight:bold; margin-top:5px;">Cancelar</button>
     </div></div>
 
     <div id="modalMenu" class="modal"><div class="modal-content">
-        <h3 id="menu_nombre" style="text-align:center; color:#1e40af; border-bottom:1px solid #eee; padding-bottom:10px;">Opciones de Cliente</h3>
+        <h3 id="menu_nombre" style="text-align:center; color:var(--dark); border-bottom:2px solid #f1f5f9; padding-bottom:15px; margin-top:0;">Cliente</h3>
         
         <button class="btn-opt" style="background:var(--primary);" onclick="verHis()">
-            <span>📊</span> Historial y Pagos
+            <span>📜</span> Ver Historial / Pagos
         </button>
         
         <button class="btn-opt" style="background:#475569;" onclick="cambiarPos()">
-            <span>🔃</span> Mover Posición
+            <span>1️⃣2️⃣</span> Cambiar Posición
         </button>
         
         <button class="btn-opt" style="background:var(--warning);" onclick="prepararRenovar()">
@@ -101,13 +117,13 @@
             <span>🗑️</span> Eliminar Cliente
         </button>
         
-        <button onclick="cerrarModal('modalMenu')" style="width:100%; background:none; border:none; color:gray; margin-top:10px; font-size:16px;">Cerrar Menú</button>
+        <button onclick="cerrarModal('modalMenu')" style="width:100%; padding:10px; background:none; border:none; color:gray; font-weight:bold;">Volver atrás</button>
     </div></div>
 
     <div id="modalHis" class="modal"><div class="modal-content">
-        <h3 id="his_nombre">Historial de Pagos</h3>
+        <h3>Historial de Pagos</h3>
         <div id="his_lista" style="max-height:300px; overflow-y:auto; margin-bottom:15px;"></div>
-        <button class="btn-main" onclick="cerrarModal('modalHis')">Cerrar Historial</button>
+        <button class="btn-main" onclick="cerrarModal('modalHis')" style="background:#cbd5e1; color:#334155;">Cerrar</button>
     </div></div>
 
     <script>
@@ -145,7 +161,8 @@
             datosGlobales.forEach(d => {
                 tc += parseFloat(d.saldo) || 0;
                 if(d.fecha_prestamo === fechaHoy()) ph += parseFloat(d.total) || 0;
-                let pgs = JSON.parse(d.pagos || "[]");
+                let pgs = [];
+                try { pgs = JSON.parse(d.pagos || "[]"); } catch(e) {}
                 pgs.forEach(p => { if(p.fecha === fechaHoy()) ch += p.monto; });
             });
             document.getElementById('c_hoy').innerText = "$" + ch.toFixed(2);
@@ -157,21 +174,28 @@
             const lista = document.getElementById('lista_c');
             lista.innerHTML = "";
             datosGlobales.forEach(d => {
-                let pgs = JSON.parse(d.pagos || "[]");
+                let pgs = [];
+                try { pgs = JSON.parse(d.pagos || "[]"); } catch(e) {}
                 let pagadoHoy = pgs.some(p => p.fecha === fechaHoy());
                 lista.innerHTML += `<tr class="${pagadoHoy ? 'pagado' : ''}" data-nombre="${d.nombre.toLowerCase()}">
                     <td>
-                        <span class="pos-num">${d.posicion || '--'}</span>
-                        <b onclick="abrirMenu('${d.id}')" style="color:var(--primary); cursor:pointer; font-size:1.1rem;">${d.nombre}</b>
-                        ${pagadoHoy ? '<span class="badge-pagado">PAGADO</span>' : ''}
-                        <br><small style="margin-left:38px;">Saldo: $${parseFloat(d.saldo).toFixed(2)}</small>
+                        <div style="display:flex; align-items:center;">
+                            <span class="pos-num">${d.posicion || '--'}</span>
+                            <div onclick="abrirMenu('${d.id}')" style="cursor:pointer; flex-grow:1;">
+                                <b style="color:var(--dark); font-size:1.1rem;">${d.nombre}</b>
+                                ${pagadoHoy ? '<span class="badge-pagado">PAGADO</span>' : ''}
+                                <div style="font-size:0.85rem; color:#64748b; margin-top:2px;">Saldo: $${parseFloat(d.saldo).toFixed(2)}</div>
+                            </div>
+                        </div>
                     </td>
-                    <td align="right"><button onclick="cobrar('${d.id}', event)" ${pagadoHoy ? 'disabled' : ''} style="background:#16a34a; color:white; border:none; padding:12px; border-radius:8px; width:45px; font-size:1.2rem;">$</button></td>
+                    <td align="right" style="vertical-align:middle;">
+                        <button onclick="cobrar('${d.id}', event)" ${pagadoHoy ? 'disabled' : ''} style="background:${pagadoHoy ? '#cbd5e1' : 'var(--success)'}; color:white; border:none; width:50px; height:50px; border-radius:12px; font-size:1.5rem; box-shadow:0 2px 4px rgba(0,0,0,0.1); cursor:pointer;">$</button>
+                    </td>
                 </tr>`;
             });
         }
 
-        // FUNCIONES DE LAS OPCIONES DEL MENÚ
+        // --- FUNCIONES DEL MENÚ (LÓGICA) ---
         function abrirMenu(id) { 
             clienteSel = datosGlobales.find(x => x.id == id); 
             document.getElementById('menu_nombre').innerText = clienteSel.nombre; 
@@ -179,18 +203,18 @@
         }
 
         async function eliminarCli() {
-            if(!confirm("⚠️ ¿Estás seguro de ELIMINAR a este cliente? Se borrarán todos sus datos.")) return;
+            if(!confirm("⚠️ ¿Estás seguro de BORRAR a este cliente? Se perderán todos sus datos.")) return;
             cerrarModal('modalMenu');
             await enviarGoogle({ method: 'DELETE', id: clienteSel.id });
-            setTimeout(cargarDatos, 800);
+            setTimeout(cargarDatos, 1000);
         }
 
         async function cambiarPos() {
-            let nPos = prompt("Escribe el nuevo número de posición:", clienteSel.posicion);
+            let nPos = prompt("Nuevo número de posición:", clienteSel.posicion);
             if(nPos === null) return;
             cerrarModal('modalMenu');
             await enviarGoogle({ method: 'PATCH', id: clienteSel.id, posicion: nPos });
-            setTimeout(cargarDatos, 800);
+            setTimeout(cargarDatos, 1000);
         }
 
         function prepararRenovar() { 
@@ -203,23 +227,22 @@
 
         function verHis() {
             let pgs = [];
-            try { pgs = JSON.parse(clienteSel.pagos || "[]"); } catch(e) { pgs = []; }
+            try { pgs = JSON.parse(clienteSel.pagos || "[]"); } catch(e) {}
             
             let html = "";
             if(pgs.length === 0) {
-                html = "<p style='text-align:center; color:#999;'>No hay pagos registrados</p>";
+                html = "<div style='text-align:center; padding:20px; color:#94a3b8;'>No hay pagos registrados aún.</div>";
             } else {
                 html = pgs.map(p => `
-                    <div style="display:flex; justify-content:space-between; align-items:center; padding:10px; border-bottom:1px solid #eee;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:12px; border-bottom:1px solid #f1f5f9;">
                         <div>
-                            <div style="font-weight:bold; font-size:0.9rem;">${p.fecha}</div>
-                            <div style="color:var(--success);">Abono: $${p.monto}</div>
+                            <div style="font-weight:bold; color:#334155;">${p.fecha}</div>
+                            <div style="color:var(--success); font-weight:bold;">+$${p.monto}</div>
                         </div>
                         <button class="btn-del-pago" onclick="eliminarPago('${p.pid}')">Eliminar</button>
                     </div>
                 `).join('');
             }
-            
             document.getElementById('his_lista').innerHTML = html;
             cerrarModal('modalMenu'); 
             abrirModal('modalHis');
@@ -234,10 +257,10 @@
 
             await enviarGoogle({ method: 'PATCH', id: clienteSel.id, saldo: nuevoSaldo.toFixed(2), pagos: JSON.stringify(nuevosPagos) });
             cerrarModal('modalHis');
-            setTimeout(cargarDatos, 800);
+            setTimeout(cargarDatos, 1000);
         }
 
-        // FUNCIONES DE COBRO Y GUARDADO
+        // --- COBRO Y GUARDADO ---
         async function cobrar(id, event) {
             let a = prompt("Monto del abono:");
             if(!a || isNaN(a) || parseFloat(a) <= 0) return;
@@ -261,10 +284,10 @@
             
             if(!n || !m) { alert("Faltan datos"); return; }
             btn.disabled = true;
+            btn.innerText = "Guardando...";
 
-            // Si es renovacion (existe el cliente), lo borramos primero
-            if(clienteSel && clienteSel.nombre == n) {
-                await enviarGoogle({ method: 'DELETE', id: clienteSel.id });
+            if(clienteSel && document.getElementById('tituloReg').innerText.includes("Renovar")) {
+                 await enviarGoogle({ method: 'DELETE', id: clienteSel.id });
             }
 
             let tot = m + (m * (i/100));
@@ -276,10 +299,11 @@
                 cerrarModal('modalReg'); 
                 cargarDatos(); 
                 btn.disabled = false;
+                btn.innerText = "GUARDAR DATOS";
                 document.getElementById('nom').value = "";
                 document.getElementById('mon').value = "";
                 document.getElementById('tituloReg').innerText = "Nuevo Préstamo";
-            }, 800);
+            }, 1000);
         }
 
         async function enviarGoogle(datos) {
