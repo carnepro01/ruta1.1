@@ -3,31 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ruta Pro Cloud</title>
+    <title>Ruta Pro Cloud v2</title>
     <style>
         :root { --primary: #2563eb; --success: #16a34a; --bg: #f8fafc; --text: #1e293b; --danger: #ef4444; --warning: #f59e0b; --muted: #64748b; }
         body { font-family: sans-serif; background: var(--bg); margin: 0; padding-bottom: 80px; color: var(--text); }
+        
+        /* Navegación */
         .nav-bar { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #ddd; z-index: 100; }
         .nav-item { cursor: pointer; font-size: 0.8rem; font-weight: bold; color: #666; text-align: center; }
         .nav-item.active { color: var(--primary); }
+        
+        /* General */
         .seccion { display: none; padding: 20px; }
         .activa { display: block; }
         .card { background: white; padding: 15px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         .card b { display: block; font-size: 1.3rem; margin-top: 5px; }
         .card span { font-size: 0.7rem; font-weight: bold; color: var(--muted); text-transform: uppercase; }
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        
+        /* Lista */
         table { width: 100%; background: white; border-radius: 10px; border-collapse: collapse; }
         td { padding: 12px; border-bottom: 1px solid #eee; }
         .pagado { background: #f0fdf4; }
         .badge-pagado { color: var(--success); font-size: 0.6rem; border: 1px solid var(--success); padding: 2px 4px; border-radius: 4px; margin-left: 5px; font-weight: bold; }
         .pos-num { background: #3b82f6; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; margin-right: 8px; font-weight: bold; }
+        
+        /* UI Elementos */
         .btn-main { background: var(--primary); color: white; border: none; width: 100%; padding: 15px; border-radius: 10px; font-weight: bold; cursor: pointer; }
-        .btn-opt { width: 100%; padding: 15px; margin-bottom: 10px; border-radius: 10px; border: none; font-weight: bold; color: white; cursor: pointer; font-size: 0.9rem; text-align: left; }
+        .btn-opt { width: 100%; padding: 15px; margin-bottom: 10px; border-radius: 10px; border: none; font-weight: bold; color: white; cursor: pointer; font-size: 1rem; text-align: left; display: flex; align-items: center; }
+        .btn-opt span { margin-right: 10px; font-size: 1.2rem; } 
         input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
         button:disabled { opacity: 0.5; }
+        
+        /* Modales */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 200; }
         .modal-content { background: white; margin: 10% auto; padding: 20px; width: 85%; max-width: 400px; border-radius: 15px; }
-        .btn-del-pago { background: var(--danger); color: white; border: none; padding: 5px 10px; border-radius: 5px; font-size: 0.7rem; cursor: pointer; }
+        
+        /* Botón Eliminar Pago */
+        .btn-del-pago { background: var(--danger); color: white; border: none; padding: 8px 12px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -70,18 +83,31 @@
     </div></div>
 
     <div id="modalMenu" class="modal"><div class="modal-content">
-        <h3 id="menu_nombre" style="text-align:center; color:var(--primary);">Cliente</h3>
-        <button class="btn-opt" style="background:var(--primary);" onclick="verHis()">📊 Historial de Pagos</button>
-        <button class="btn-opt" style="background:#475569;" onclick="cambiarPos()">🔃 Mover Posición</button>
-        <button class="btn-opt" style="background:var(--warning);" onclick="prepararRenovar()">✏️ Renovar / Editar</button>
-        <button class="btn-opt" style="background:var(--danger);" onclick="eliminarCli()">🗑️ Eliminar Cliente</button>
-        <button onclick="cerrarModal('modalMenu')" style="width:100%; background:none; border:none; color:gray; margin-top:10px;">Volver</button>
+        <h3 id="menu_nombre" style="text-align:center; color:#1e40af; border-bottom:1px solid #eee; padding-bottom:10px;">Opciones de Cliente</h3>
+        
+        <button class="btn-opt" style="background:var(--primary);" onclick="verHis()">
+            <span>📊</span> Historial y Pagos
+        </button>
+        
+        <button class="btn-opt" style="background:#475569;" onclick="cambiarPos()">
+            <span>🔃</span> Mover Posición
+        </button>
+        
+        <button class="btn-opt" style="background:var(--warning);" onclick="prepararRenovar()">
+            <span>✏️</span> Renovar / Editar
+        </button>
+        
+        <button class="btn-opt" style="background:var(--danger);" onclick="eliminarCli()">
+            <span>🗑️</span> Eliminar Cliente
+        </button>
+        
+        <button onclick="cerrarModal('modalMenu')" style="width:100%; background:none; border:none; color:gray; margin-top:10px; font-size:16px;">Cerrar Menú</button>
     </div></div>
 
     <div id="modalHis" class="modal"><div class="modal-content">
-        <h3 id="his_nombre">Pagos</h3>
-        <div id="his_lista" style="max-height:300px; overflow-y:auto;"></div>
-        <button class="btn-main" style="margin-top:15px;" onclick="cerrarModal('modalHis')">Cerrar</button>
+        <h3 id="his_nombre">Historial de Pagos</h3>
+        <div id="his_lista" style="max-height:300px; overflow-y:auto; margin-bottom:15px;"></div>
+        <button class="btn-main" onclick="cerrarModal('modalHis')">Cerrar Historial</button>
     </div></div>
 
     <script>
@@ -136,15 +162,82 @@
                 lista.innerHTML += `<tr class="${pagadoHoy ? 'pagado' : ''}" data-nombre="${d.nombre.toLowerCase()}">
                     <td>
                         <span class="pos-num">${d.posicion || '--'}</span>
-                        <b onclick="abrirMenu('${d.id}')" style="color:var(--primary); cursor:pointer;">${d.nombre}</b>
+                        <b onclick="abrirMenu('${d.id}')" style="color:var(--primary); cursor:pointer; font-size:1.1rem;">${d.nombre}</b>
                         ${pagadoHoy ? '<span class="badge-pagado">PAGADO</span>' : ''}
                         <br><small style="margin-left:38px;">Saldo: $${parseFloat(d.saldo).toFixed(2)}</small>
                     </td>
-                    <td align="right"><button onclick="cobrar('${d.id}', event)" ${pagadoHoy ? 'disabled' : ''} style="background:#16a34a; color:white; border:none; padding:12px; border-radius:8px; width:45px;">$</button></td>
+                    <td align="right"><button onclick="cobrar('${d.id}', event)" ${pagadoHoy ? 'disabled' : ''} style="background:#16a34a; color:white; border:none; padding:12px; border-radius:8px; width:45px; font-size:1.2rem;">$</button></td>
                 </tr>`;
             });
         }
 
+        // FUNCIONES DE LAS OPCIONES DEL MENÚ
+        function abrirMenu(id) { 
+            clienteSel = datosGlobales.find(x => x.id == id); 
+            document.getElementById('menu_nombre').innerText = clienteSel.nombre; 
+            abrirModal('modalMenu'); 
+        }
+
+        async function eliminarCli() {
+            if(!confirm("⚠️ ¿Estás seguro de ELIMINAR a este cliente? Se borrarán todos sus datos.")) return;
+            cerrarModal('modalMenu');
+            await enviarGoogle({ method: 'DELETE', id: clienteSel.id });
+            setTimeout(cargarDatos, 800);
+        }
+
+        async function cambiarPos() {
+            let nPos = prompt("Escribe el nuevo número de posición:", clienteSel.posicion);
+            if(nPos === null) return;
+            cerrarModal('modalMenu');
+            await enviarGoogle({ method: 'PATCH', id: clienteSel.id, posicion: nPos });
+            setTimeout(cargarDatos, 800);
+        }
+
+        function prepararRenovar() { 
+            document.getElementById('nom').value = clienteSel.nombre; 
+            document.getElementById('pos').value = clienteSel.posicion; 
+            document.getElementById('tituloReg').innerText = "Renovar Préstamo";
+            cerrarModal('modalMenu'); 
+            abrirModal('modalReg'); 
+        }
+
+        function verHis() {
+            let pgs = [];
+            try { pgs = JSON.parse(clienteSel.pagos || "[]"); } catch(e) { pgs = []; }
+            
+            let html = "";
+            if(pgs.length === 0) {
+                html = "<p style='text-align:center; color:#999;'>No hay pagos registrados</p>";
+            } else {
+                html = pgs.map(p => `
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:10px; border-bottom:1px solid #eee;">
+                        <div>
+                            <div style="font-weight:bold; font-size:0.9rem;">${p.fecha}</div>
+                            <div style="color:var(--success);">Abono: $${p.monto}</div>
+                        </div>
+                        <button class="btn-del-pago" onclick="eliminarPago('${p.pid}')">Eliminar</button>
+                    </div>
+                `).join('');
+            }
+            
+            document.getElementById('his_lista').innerHTML = html;
+            cerrarModal('modalMenu'); 
+            abrirModal('modalHis');
+        }
+
+        async function eliminarPago(pid) {
+            if(!confirm("¿Borrar este pago y devolver el saldo?")) return;
+            let pgs = JSON.parse(clienteSel.pagos || "[]");
+            let pagoAEliminar = pgs.find(p => p.pid == pid);
+            let nuevosPagos = pgs.filter(p => p.pid != pid);
+            let nuevoSaldo = parseFloat(clienteSel.saldo) + parseFloat(pagoAEliminar.monto);
+
+            await enviarGoogle({ method: 'PATCH', id: clienteSel.id, saldo: nuevoSaldo.toFixed(2), pagos: JSON.stringify(nuevosPagos) });
+            cerrarModal('modalHis');
+            setTimeout(cargarDatos, 800);
+        }
+
+        // FUNCIONES DE COBRO Y GUARDADO
         async function cobrar(id, event) {
             let a = prompt("Monto del abono:");
             if(!a || isNaN(a) || parseFloat(a) <= 0) return;
@@ -165,9 +258,11 @@
             const btn = document.getElementById('btnGuardar');
             let n = document.getElementById('nom').value, m = parseFloat(document.getElementById('mon').value),
                 i = parseFloat(document.getElementById('int').value) || 0, p = document.getElementById('pos').value || "99";
-            if(!n || !m) return;
+            
+            if(!n || !m) { alert("Faltan datos"); return; }
             btn.disabled = true;
 
+            // Si es renovacion (existe el cliente), lo borramos primero
             if(clienteSel && clienteSel.nombre == n) {
                 await enviarGoogle({ method: 'DELETE', id: clienteSel.id });
             }
@@ -177,19 +272,27 @@
             await enviarGoogle(nuevo);
             
             setTimeout(() => { 
+                clienteSel = null;
                 cerrarModal('modalReg'); 
                 cargarDatos(); 
                 btn.disabled = false;
                 document.getElementById('nom').value = "";
                 document.getElementById('mon').value = "";
+                document.getElementById('tituloReg').innerText = "Nuevo Préstamo";
             }, 800);
         }
 
-        function abrirMenu(id) { 
-            clienteSel = datosGlobales.find(x => x.id == id); 
-            document.getElementById('menu_nombre').innerText = clienteSel.nombre; 
-            abrirModal('modalMenu'); 
+        async function enviarGoogle(datos) {
+            document.getElementById('loading').style.display = 'block';
+            return fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(datos) });
         }
 
-        async function eliminarCli() {
-            if(!confirm("¿Eliminar
+        function filtrar() {
+            let b = document.getElementById('buscador').value.toLowerCase();
+            document.querySelectorAll('#lista_c tr').forEach(tr => { 
+                tr.style.display = tr.getAttribute('data-nombre').includes(b) ? '' : 'none'; 
+            });
+        }
+    </script>
+</body>
+</html>
